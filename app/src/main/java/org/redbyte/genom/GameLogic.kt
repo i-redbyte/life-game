@@ -5,7 +5,13 @@ import kotlin.random.Random
 class GameLogic(private val width: Int, private val height: Int) {
     var cells: Array<Array<Cell>> = Array(width) { x ->
         Array(height) { y ->
-            Cell(generateRandomGenes(), CellType.randomType(), x = x, y = y)
+            Cell(
+                genes = generateRandomGenes(),
+                type = if (Random.nextBoolean()) CellType.randomType() else CellType.DEAD,
+                isAlive = Random.nextBoolean(),
+                x = x,
+                y = y
+            )
         }
     }
 
