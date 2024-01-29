@@ -456,7 +456,7 @@ class GameLogic(private val width: Int, private val height: Int) {
     }
 
     private fun generateRandomGenes(): Set<Int> {
-        return (0..9).shuffled().take(3).toSet()
+        return (0..9).shuffled().take(2).toSet()
     }
 
     companion object {

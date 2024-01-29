@@ -13,6 +13,9 @@ fun GameApp() {
     val gameState = remember { mutableStateOf(gameLogic.cells) }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
+        val boardWidth = maxWidth
+        val boardHeight = maxHeight
+
         LaunchedEffect(Unit) {
             while (true) {
                 delay(1000)
@@ -20,6 +23,8 @@ fun GameApp() {
                 gameState.value = gameLogic.cells
             }
         }
-        GameBoard(gameState.value.map { it.toList() })
+
+        GameBoard(gameState.value.map { it.toList() }, boardWidth, boardHeight)
     }
 }
+
