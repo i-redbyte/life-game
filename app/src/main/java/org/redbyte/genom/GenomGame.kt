@@ -2,10 +2,13 @@ package org.redbyte.genom
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -15,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import org.redbyte.Cell
 
+typealias CellMatrix = Array<Array<Cell>>
 @Composable
 fun GenomGame() {
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -24,34 +28,61 @@ fun GenomGame() {
         val cellSize = screenWidth / 64
         val columnSize = screenWidth / cellSize
         val rowSize = screenHeight / cellSize
+        val aggressiveCount = remember { mutableIntStateOf(0) }
+        val peacefulCount = remember { mutableIntStateOf(0) }
+        val turnNumber = remember { mutableIntStateOf(0) }
 
-        var matrix by remember { mutableStateOf(Matrix(columnSize) { Array(rowSize) { Cell(false, emptySet()) } }) }
+        var matrix by remember {
+            mutableStateOf(CellMatrix(columnSize) {
+                Array(rowSize) {
+                    Cell(
+                        false,
+                        emptySet()
+                    )
+                }
+            })
+        }
         LaunchedEffect(key1 = matrix) {
-            generateWorld(matrix, 1680)
+            generateWorld(matrix, 1600)
             while (true) {
                 matrix = getNextStatus(matrix)
+                aggressiveCount.value =
+                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
+                peacefulCount.value =
+                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
+                turnNumber.value++
                 delay(175)
             }
         }
+        Column {
+            Text("Агрессивные клетки: ${aggressiveCount.value}")
+            Text("Пацифисты: ${peacefulCount.value}")
+            Text("Ход номер: ${turnNumber.value}")
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            matrix.forEachIndexed { i, row ->
-                row.forEachIndexed { j, cell ->
-                    val color = when {
-                        cell.isAlive && cell.genes.contains(6) -> Color.Green
-                        cell.isAlive && cell.genes.contains(8) -> Color.Red
-                        else -> Color.White
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                matrix.forEachIndexed { i, row ->
+                    row.forEachIndexed { j, cell ->
+                        val color = when {
+                            cell.isAlive && cell.genes.contains(6) -> Color.Green
+                            cell.isAlive && cell.genes.contains(8) -> Color.Red
+                            else -> Color.White
+                        }
+                        drawCircle(
+                            color,
+                            cellSize / 2f,
+                            center = Offset(
+                                i * cellSize + cellSize / 2f,
+                                j * cellSize + cellSize / 2f
+                            )
+                        )
                     }
-                    drawCircle(color, cellSize / 2f, center = Offset(i * cellSize + cellSize / 2f, j * cellSize + cellSize / 2f))
                 }
             }
         }
     }
 }
 
-typealias Matrix = Array<Array<Cell>>
-
-fun generateWorld(matrix: Matrix, initialPopulation: Int){
+fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
     repeat(initialPopulation) {
         val x = matrix.indices.random()
         val y = matrix[0].indices.random()
@@ -60,7 +91,7 @@ fun generateWorld(matrix: Matrix, initialPopulation: Int){
     }
 }
 
-fun getNextStatus(matrix: Matrix): Matrix {
+fun getNextStatus(matrix: CellMatrix): CellMatrix {
     val newMatrix = Array(matrix.size) { Array(matrix[0].size) { Cell(false, emptySet()) } }
     for (i in matrix.indices) {
         for (j in matrix[0].indices) {
@@ -76,7 +107,7 @@ fun getNextStatus(matrix: Matrix): Matrix {
     return newMatrix
 }
 
-fun getNeighbors(matrix: Matrix, x: Int, y: Int): List<Cell> {
+fun getNeighbors(matrix: CellMatrix, x: Int, y: Int): List<Cell> {
     val neighbors = mutableListOf<Cell>()
     val ref = arrayOf(
         intArrayOf(-1, -1),
@@ -110,6 +141,7 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
                 else -> aliveNeighbors == 3
             }
         }
+
         cell.genes.contains(8) -> {
             when {
                 aggressiveNeighbors.isNotEmpty() && peacefulNeighbors.isEmpty() -> false
@@ -117,6 +149,7 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
                 else -> cell.isAlive && aliveNeighbors in 2..3
             }
         }
+
         else -> cell.isAlive && aliveNeighbors in 2..3
     }
 }
