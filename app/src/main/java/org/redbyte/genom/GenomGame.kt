@@ -1,7 +1,6 @@
 package org.redbyte.genom
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
@@ -29,14 +28,15 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.redbyte.Cell
+import kotlin.random.Random
 
 typealias CellMatrix = Array<Array<Cell>>
+
 @Composable
 fun GenomGame() {
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
-    val topSheetVisibleState = remember { MutableTransitionState(false).apply { targetState = showTopSheet } }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
@@ -47,6 +47,7 @@ fun GenomGame() {
         val rowSize = screenHeight / cellSize
         val aggressiveCount = remember { mutableIntStateOf(0) }
         val peacefulCount = remember { mutableIntStateOf(0) }
+        val cannibalCount = remember { mutableIntStateOf(0) }
         val turnNumber = remember { mutableIntStateOf(0) }
 
         var matrix by remember {
@@ -58,12 +59,14 @@ fun GenomGame() {
                 generateWorld(matrix, 1600)
                 while (!isPaused) {
                     matrix = getNextStatus(matrix)
-                    aggressiveCount.value =
-                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
-                    peacefulCount.value =
+                    peacefulCount.intValue =
                         matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
-                    turnNumber.value++
-                    delay(175)
+                    cannibalCount.intValue =
+                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(7) } }
+                    aggressiveCount.intValue =
+                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
+                    turnNumber.intValue++
+                    delay(150)
                 }
             }
         }
@@ -81,14 +84,17 @@ fun GenomGame() {
         }) {
             AnimatedVisibility(
                 visible = showTopSheet,
-                enter =  slideInVertically(),
+                enter = slideInVertically(),
                 exit = slideOutVertically()
             ) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
                     Text("Ход: ${turnNumber.intValue}")
-                    Text("Агрессивные клетки: ${aggressiveCount.intValue}")
+                    Text("Агрессоры: ${aggressiveCount.intValue}")
+                    Text("Каннибалы: ${cannibalCount.intValue}")
                     Text("Пацифисты: ${peacefulCount.intValue}")
                     Button(onClick = { isPaused = !isPaused }) {
                         Text(if (isPaused) "Продолжить" else "Пауза")
@@ -101,6 +107,7 @@ fun GenomGame() {
                     row.forEachIndexed { j, cell ->
                         val color = when {
                             cell.isAlive && cell.genes.contains(6) -> Color.Green
+                            cell.isAlive && cell.genes.contains(7) -> Color.Blue
                             cell.isAlive && cell.genes.contains(8) -> Color.Red
                             else -> Color.White
                         }
@@ -170,23 +177,28 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
     val aliveNeighbors = neighbors.count { it.isAlive }
     val peacefulNeighbors = neighbors.filter { it.genes.contains(6) }
     val aggressiveNeighbors = neighbors.filter { it.genes.contains(8) }
+    val cannibalNeighbors = neighbors.filter { it.genes.contains(7) }
 
     return when {
         cell.genes.contains(6) -> {
-            when {
-                cell.isAlive -> aliveNeighbors in 2..3
-                else -> aliveNeighbors == 3
-            }
+            cell.isAlive && aliveNeighbors in 2..3 || aliveNeighbors == 3
         }
 
         cell.genes.contains(8) -> {
-            when {
-                aggressiveNeighbors.isNotEmpty() && peacefulNeighbors.isEmpty() -> false
-                peacefulNeighbors.isNotEmpty() -> true
-                else -> cell.isAlive && aliveNeighbors in 2..3
+            val canReproduce = peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty()
+            if (canReproduce && Random.nextInt(100) < 5) {
+                cell.genes = setOf(7)
             }
+            canReproduce
         }
 
-        else -> cell.isAlive && aliveNeighbors in 2..3
+        cell.genes.contains(7) -> {
+            val hasVictims = peacefulNeighbors.isNotEmpty() || aggressiveNeighbors.isNotEmpty()
+            val surroundedByPeaceful = peacefulNeighbors.size >= 4
+            val noNeighbors = neighbors.all { !it.isAlive }
+            hasVictims && !surroundedByPeaceful && !noNeighbors
+        }
+
+        else -> false
     }
 }
