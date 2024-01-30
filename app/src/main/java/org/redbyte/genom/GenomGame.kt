@@ -135,12 +135,29 @@ fun GenomGame() {
     }
 }
 
+//fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
+//    repeat(initialPopulation) {
+//        val x = matrix.indices.random()
+//        val y = matrix[0].indices.random()
+//        matrix[x][y].isAlive = true
+//        matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
+//    }
+//}
 fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
-    repeat(initialPopulation) {
+    var populated = 0
+    val maxAttempts = initialPopulation * 10 // Установите максимальное количество попыток для избежания бесконечного цикла
+    var attempts = 0
+
+    while (populated < initialPopulation && attempts < maxAttempts) {
         val x = matrix.indices.random()
         val y = matrix[0].indices.random()
-        matrix[x][y].isAlive = true
-        matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
+
+        if (!matrix[x][y].isAlive) {
+            matrix[x][y].isAlive = true
+            matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
+            populated++
+        }
+        attempts++
     }
 }
 
@@ -186,17 +203,20 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
     val aliveNeighbors = neighbors.count { it.isAlive }
     val peacefulNeighbors = neighbors.filter { it.genes.contains(6) }
     val aggressiveNeighbors = neighbors.filter { it.genes.contains(8) }
+    val aggressiveCount = neighbors.count { it.genes.contains(8) }
+    val cannibalCount = neighbors.count { it.genes.contains(7) }
     val cannibalNeighbors = neighbors.filter { it.genes.contains(7) }
 
     return when {
         cell.genes.contains(4) -> {
-            val target =
-                aggressiveNeighbors
-                    .ifEmpty { cannibalNeighbors }
-                    .ifEmpty { peacefulNeighbors }
-                    .firstOrNull()
-            target?.isAlive = false
-            cell.turnsLived++ < 5
+            if (cell.turnsLived < 5) {
+                val target = aggressiveNeighbors.ifEmpty { cannibalNeighbors }.firstOrNull()
+                target?.isAlive = false
+                cell.turnsLived++
+                return true
+            } else {
+                return false // death
+            }
         }
 
         cell.genes.contains(6) -> {
@@ -213,7 +233,7 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
         }
 
         cell.genes.contains(8) -> {
-            val canReproduce = peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty()
+            val canReproduce = peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty() && aggressiveCount in 2..3
             if (canReproduce && Random.nextInt(100) < 5) {
                 cell.genes.add(7)
                 cell.genes.remove(8)
@@ -222,7 +242,7 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
         }
 
         cell.genes.contains(7) -> {
-            val hasVictims = peacefulNeighbors.isNotEmpty() || aggressiveNeighbors.isNotEmpty()
+            val hasVictims = peacefulNeighbors.isNotEmpty() || aggressiveNeighbors.isNotEmpty() && cannibalCount in 2..3
             val surroundedByPeaceful = peacefulNeighbors.size >= 4
             val noNeighbors = neighbors.all { !it.isAlive }
             hasVictims && !surroundedByPeaceful && !noNeighbors
