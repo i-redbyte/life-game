@@ -1,9 +1,17 @@
 package org.redbyte.genom
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,16 +19,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.redbyte.Cell
 
 typealias CellMatrix = Array<Array<Cell>>
 @Composable
 fun GenomGame() {
+    val coroutineScope = rememberCoroutineScope()
+    var showTopSheet by remember { mutableStateOf(false) }
+    var isPaused by remember { mutableStateOf(false) }
+    val topSheetVisibleState = remember { MutableTransitionState(false).apply { targetState = showTopSheet } }
+
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
         val screenHeight = constraints.maxHeight
@@ -33,31 +50,51 @@ fun GenomGame() {
         val turnNumber = remember { mutableIntStateOf(0) }
 
         var matrix by remember {
-            mutableStateOf(CellMatrix(columnSize) {
-                Array(rowSize) {
-                    Cell(
-                        false,
-                        emptySet()
-                    )
-                }
-            })
+            mutableStateOf(Array(columnSize) { Array(rowSize) { Cell(false, emptySet()) } })
         }
-        LaunchedEffect(key1 = matrix) {
-            generateWorld(matrix, 1600)
-            while (true) {
-                matrix = getNextStatus(matrix)
-                aggressiveCount.value =
-                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
-                peacefulCount.value =
-                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
-                turnNumber.value++
-                delay(175)
+
+        LaunchedEffect(key1 = isPaused, key2 = matrix) {
+            if (!isPaused) {
+                generateWorld(matrix, 1600)
+                while (!isPaused) {
+                    matrix = getNextStatus(matrix)
+                    aggressiveCount.value =
+                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
+                    peacefulCount.value =
+                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
+                    turnNumber.value++
+                    delay(175)
+                }
             }
         }
-        Column {
-            Text("Агрессивные клетки: ${aggressiveCount.value}")
-            Text("Пацифисты: ${peacefulCount.value}")
-            Text("Ход номер: ${turnNumber.value}")
+
+        Column(modifier = Modifier.pointerInput(Unit) {
+            detectVerticalDragGestures { _, dragAmount ->
+                coroutineScope.launch {
+                    if (dragAmount > 0 && !showTopSheet) {
+                        showTopSheet = true
+                    } else if (dragAmount < 0 && showTopSheet) {
+                        showTopSheet = false
+                    }
+                }
+            }
+        }) {
+            AnimatedVisibility(
+                visible = showTopSheet,
+                enter =  slideInVertically(),
+                exit = slideOutVertically()
+            ) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)) {
+                    Text("Ход: ${turnNumber.intValue}")
+                    Text("Агрессивные клетки: ${aggressiveCount.intValue}")
+                    Text("Пацифисты: ${peacefulCount.intValue}")
+                    Button(onClick = { isPaused = !isPaused }) {
+                        Text(if (isPaused) "Продолжить" else "Пауза")
+                    }
+                }
+            }
 
             Canvas(modifier = Modifier.fillMaxSize()) {
                 matrix.forEachIndexed { i, row ->
