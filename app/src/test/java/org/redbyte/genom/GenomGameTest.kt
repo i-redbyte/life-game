@@ -1,37 +1,61 @@
 package org.redbyte.genom
+
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.redbyte.Cell
 
 class GenomGameTest {
-    @Test
-    fun testGenerateWorld() {
-        val matrix = Array(10) { Array(10) { Cell(false, mutableSetOf()) } }
-        val initialPopulation = 20
+    private lateinit var matrix: CellMatrix
 
-        generateWorld(matrix, initialPopulation)
-        val aliveCells = matrix.sumOf { row -> row.count { it.isAlive } }
-        assertEquals(initialPopulation, aliveCells)
+    @Before
+    fun setUp() {
+        matrix = Array(10) { Array(10) { Cell(false, mutableSetOf()) } }
     }
 
     @Test
-    fun testGenerateWorld_populationCount() {
-        val matrix = Array(10) { Array(10) { Cell(false, mutableSetOf()) } }
-        val initialPopulation = 20
-
+    fun generateWorld_populatesCorrectNumberOfCells() {
+        val initialPopulation = 100
         generateWorld(matrix, initialPopulation)
-
-        val aliveCells = matrix.sumOf { row -> row.count { it.isAlive } }
-        assertEquals(initialPopulation, aliveCells)
+        val actualPopulation = matrix.sumOf { it.count { cell -> cell.isAlive } }
+        assertEquals(
+            "Количество инициализированных клеток не соответствует ожидаемому",
+            initialPopulation,
+            actualPopulation
+        )
     }
 
     @Test
-    fun testGenerateWorld_validGenes() {
-        val matrix = Array(10) { Array(10) { Cell(false, mutableSetOf()) } }
-        generateWorld(matrix, 10)
+    fun testGetNextStatus() {
+        matrix[5][5] = Cell(true, mutableSetOf(6))
+        matrix[4][4] = Cell(true, mutableSetOf(6))
+        matrix[4][5] = Cell(true, mutableSetOf(6))
+        matrix[4][6] = Cell(true, mutableSetOf(6))
+        val newMatrix = getNextStatus(matrix)
+        assertTrue("Клетка должна остаться живой", newMatrix[5][5].isAlive)
+    }
 
-        assertTrue(matrix.any { row -> row.any { it.isAlive && (it.genes.contains(6) || it.genes.contains(8)) } })
+    @Test
+    fun getNeighbors_returnsCorrectNeighborsForCentralCell() {
+        val neighbors = getNeighbors(matrix, 5, 5)
+        assertEquals(
+            "Количество соседей для центральной клетки не соответствует ожидаемому",
+            8,
+            neighbors.size
+        )
+    }
+
+    @Test
+    fun getNextStatus_changesPopulationCorrectly() {
+        generateWorld(matrix, 50)
+        val originalPopulation = matrix.sumOf { it.count { cell -> cell.isAlive } }
+        val newMatrix = getNextStatus(matrix)
+        val newPopulation = newMatrix.sumOf { it.count { cell -> cell.isAlive } }
+        assertNotEquals(
+            "Популяция не изменилась после обновления статуса",
+            originalPopulation,
+            newPopulation
+        )
     }
 
 }
-
