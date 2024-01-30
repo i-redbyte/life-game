@@ -48,10 +48,11 @@ fun GenomGame() {
         val aggressiveCount = remember { mutableIntStateOf(0) }
         val peacefulCount = remember { mutableIntStateOf(0) }
         val cannibalCount = remember { mutableIntStateOf(0) }
+        val psychoCount = remember { mutableIntStateOf(0) }
         val turnNumber = remember { mutableIntStateOf(0) }
 
         var matrix by remember {
-            mutableStateOf(Array(columnSize) { Array(rowSize) { Cell(false, emptySet()) } })
+            mutableStateOf(Array(columnSize) { Array(rowSize) { Cell(false, mutableSetOf()) } })
         }
 
         LaunchedEffect(key1 = isPaused, key2 = matrix) {
@@ -59,6 +60,8 @@ fun GenomGame() {
                 generateWorld(matrix, 1600)
                 while (!isPaused) {
                     matrix = getNextStatus(matrix)
+                    psychoCount.intValue =
+                        matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(4) } }
                     peacefulCount.intValue =
                         matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
                     cannibalCount.intValue =
@@ -96,6 +99,7 @@ fun GenomGame() {
                     Text("Агрессоры: ${aggressiveCount.intValue}")
                     Text("Каннибалы: ${cannibalCount.intValue}")
                     Text("Пацифисты: ${peacefulCount.intValue}")
+                    Text("Психи: ${psychoCount.intValue}")
                     Button(onClick = { isPaused = !isPaused }) {
                         Text(if (isPaused) "Продолжить" else "Пауза")
                     }
@@ -106,6 +110,11 @@ fun GenomGame() {
                 matrix.forEachIndexed { i, row ->
                     row.forEachIndexed { j, cell ->
                         val color = when {
+                            cell.isAlive && cell.genes.contains(4) -> Color(
+                                android.graphics.Color.parseColor(
+                                    "#FFFFC107"
+                                )
+                            )
                             cell.isAlive && cell.genes.contains(6) -> Color.Green
                             cell.isAlive && cell.genes.contains(7) -> Color.Blue
                             cell.isAlive && cell.genes.contains(8) -> Color.Red
@@ -131,12 +140,12 @@ fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
         val x = matrix.indices.random()
         val y = matrix[0].indices.random()
         matrix[x][y].isAlive = true
-        matrix[x][y].genes = setOf(setOf(6, 8).random())
+        matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
     }
 }
 
 fun getNextStatus(matrix: CellMatrix): CellMatrix {
-    val newMatrix = Array(matrix.size) { Array(matrix[0].size) { Cell(false, emptySet()) } }
+    val newMatrix = Array(matrix.size) { Array(matrix[0].size) { Cell(false, mutableSetOf()) } }
     for (i in matrix.indices) {
         for (j in matrix[0].indices) {
             val cell = matrix[i][j]
@@ -180,14 +189,34 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
     val cannibalNeighbors = neighbors.filter { it.genes.contains(7) }
 
     return when {
+        cell.genes.contains(4) -> {
+            val target =
+                aggressiveNeighbors
+                    .ifEmpty { cannibalNeighbors }
+                    .ifEmpty { peacefulNeighbors }
+                    .firstOrNull()
+            target?.isAlive = false
+            cell.turnsLived++ < 5
+        }
+
         cell.genes.contains(6) -> {
-            cell.isAlive && aliveNeighbors in 2..3 || aliveNeighbors == 3
+            when {
+                Random.nextInt(100) < 2 -> {
+                    cell.genes.remove(6)
+                    cell.genes.add(4)
+                    cell.turnsLived = 0
+                    true
+                }
+                cell.isAlive -> aliveNeighbors in 2..3
+                else -> false
+            }
         }
 
         cell.genes.contains(8) -> {
             val canReproduce = peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty()
             if (canReproduce && Random.nextInt(100) < 5) {
-                cell.genes = setOf(7)
+                cell.genes.add(7)
+                cell.genes.remove(8)
             }
             canReproduce
         }
