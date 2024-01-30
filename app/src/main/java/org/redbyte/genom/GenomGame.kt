@@ -1,5 +1,6 @@
 package org.redbyte.genom
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -69,7 +70,7 @@ fun GenomGame() {
                     aggressiveCount.intValue =
                         matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
                     turnNumber.intValue++
-                    delay(150)
+                    delay(250)
                 }
             }
         }
@@ -135,17 +136,9 @@ fun GenomGame() {
     }
 }
 
-//fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
-//    repeat(initialPopulation) {
-//        val x = matrix.indices.random()
-//        val y = matrix[0].indices.random()
-//        matrix[x][y].isAlive = true
-//        matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
-//    }
-//}
 fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
     var populated = 0
-    val maxAttempts = initialPopulation * 10 // Установите максимальное количество попыток для избежания бесконечного цикла
+    val maxAttempts = initialPopulation * 10
     var attempts = 0
 
     while (populated < initialPopulation && attempts < maxAttempts) {
@@ -168,9 +161,10 @@ fun getNextStatus(matrix: CellMatrix): CellMatrix {
             val cell = matrix[i][j]
             val neighbors = getNeighbors(matrix, i, j)
             val newCell = newMatrix[i][j]
-            newCell.isAlive = getNewStatus(cell, neighbors)
+            newCell.isAlive = newStatus(cell, neighbors)
             if (newCell.isAlive) {
                 newCell.genes = cell.genes
+                newCell.turnsLived = cell.turnsLived
             }
         }
     }
@@ -199,7 +193,7 @@ fun getNeighbors(matrix: CellMatrix, x: Int, y: Int): List<Cell> {
     return neighbors
 }
 
-fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
+fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
     val aliveNeighbors = neighbors.count { it.isAlive }
     val peacefulNeighbors = neighbors.filter { it.genes.contains(6) }
     val aggressiveNeighbors = neighbors.filter { it.genes.contains(8) }
@@ -209,7 +203,7 @@ fun getNewStatus(cell: Cell, neighbors: List<Cell>): Boolean {
 
     return when {
         cell.genes.contains(4) -> {
-            if (cell.turnsLived < 5) {
+            if (cell.turnsLived < 10) {
                 val target = aggressiveNeighbors.ifEmpty { cannibalNeighbors }.firstOrNull()
                 target?.isAlive = false
                 cell.turnsLived++
