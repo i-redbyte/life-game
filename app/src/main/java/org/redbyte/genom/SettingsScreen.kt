@@ -1,8 +1,6 @@
 package org.redbyte.genom
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -13,13 +11,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import org.redbyte.genom.data.GameSettings
-
-//    val biohazardImage = ImageBitmap.imageResource(R.drawable.ic_biohazard)
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
