@@ -14,9 +14,10 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import org.redbyte.genom.data.GameSettings
 
 @Composable
-fun SettingsScreen(navController: NavHostController) {
+fun SettingsScreen(navController: NavHostController, sharedViewModel: SharedGameViewModel) {
     val dialogState = remember { mutableStateOf(false) }
     var hasPacifists by remember { mutableStateOf(true) }
     var hasAggressors by remember { mutableStateOf(false) }
@@ -67,9 +68,9 @@ fun SettingsScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
+                    val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
+                    sharedViewModel.setGameSettings(gameSettings)
                     navController.navigate("genomGame")
-                    // val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
-                    // navController.navigate("GenomGameRoute") { pass gameSettings as argument }
                 },
                 modifier = Modifier
                     .size(256.dp)

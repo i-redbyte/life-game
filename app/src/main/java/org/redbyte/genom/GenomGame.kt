@@ -1,5 +1,6 @@
 package org.redbyte.genom
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +35,9 @@ import kotlin.random.Random
 typealias CellMatrix = Array<Array<Cell>>
 
 @Composable
-fun GenomGame() {
+fun GenomGame(viewModel: SharedGameViewModel) {
+    val gameSettings by viewModel.gameSettings.observeAsState()
+    Log.d("_debug", "[Game Settings]: $gameSettings")
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
@@ -115,6 +119,7 @@ fun GenomGame() {
                                     "#FFFFC107"
                                 )
                             )
+
                             cell.isAlive && cell.genes.contains(6) -> Color.Green
                             cell.isAlive && cell.genes.contains(7) -> Color.Blue
                             cell.isAlive && cell.genes.contains(8) -> Color.Red
@@ -220,13 +225,15 @@ fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
                     cell.turnsLived = 0
                     true
                 }
+
                 cell.isAlive -> aliveNeighbors in 2..3
                 else -> false
             }
         }
 
         cell.genes.contains(8) -> {
-            val canReproduce = peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty() && aggressiveCount in 2..3
+            val canReproduce =
+                peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty() && aggressiveCount in 2..3
             if (canReproduce && Random.nextInt(100) < 5) {
                 cell.genes.add(7)
                 cell.genes.remove(8)
@@ -235,7 +242,8 @@ fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
         }
 
         cell.genes.contains(7) -> {
-            val hasVictims = peacefulNeighbors.isNotEmpty() || aggressiveNeighbors.isNotEmpty() && cannibalCount in 2..3
+            val hasVictims =
+                peacefulNeighbors.isNotEmpty() || aggressiveNeighbors.isNotEmpty() && cannibalCount in 2..3
             val surroundedByPeaceful = peacefulNeighbors.size >= 4
             val noNeighbors = neighbors.all { !it.isAlive }
             hasVictims && !surroundedByPeaceful && !noNeighbors
