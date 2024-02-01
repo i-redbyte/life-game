@@ -11,9 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GenomTheme {
-                val navController = rememberNavController()
-                SettingsScreen(navController)
-               // GenomGame()
+                AppNavigation()
             }
         }
     }

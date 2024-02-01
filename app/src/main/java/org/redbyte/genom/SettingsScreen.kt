@@ -67,6 +67,7 @@ fun SettingsScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
+                    navController.navigate("genomGame")
                     // val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
                     // navController.navigate("GenomGameRoute") { pass gameSettings as argument }
                 },
