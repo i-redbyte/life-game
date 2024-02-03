@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,14 +29,18 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.redbyte.genom.data.Cell
+import org.redbyte.genom.data.GameSettings
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 typealias CellMatrix = Array<Array<Cell>>
 
+private var gameSettings by Delegates.notNull<GameSettings>()
+
 @Composable
 fun GenomGame(viewModel: SharedGameViewModel) {
-    val gameSettings by viewModel.gameSettings.observeAsState()
-    Log.d("_debug", "[Game Settings]: $gameSettings")
+    gameSettings =
+        viewModel.gameSettings.value ?: throw RuntimeException("Game Settings cannot be null")
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
@@ -61,7 +64,7 @@ fun GenomGame(viewModel: SharedGameViewModel) {
 
         LaunchedEffect(key1 = isPaused, key2 = matrix) {
             if (!isPaused) {
-                generateWorld(matrix, 1600)
+                generateWorld(matrix, gameSettings.initialPopulation)
                 while (!isPaused) {
                     matrix = getNextStatus(matrix)
                     psychoCount.intValue =
@@ -73,7 +76,7 @@ fun GenomGame(viewModel: SharedGameViewModel) {
                     aggressiveCount.intValue =
                         matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
                     turnNumber.intValue++
-                    delay(250)
+                    delay(50)
                 }
             }
         }
@@ -140,7 +143,7 @@ fun GenomGame(viewModel: SharedGameViewModel) {
     }
 }
 
-fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
+private fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
     var populated = 0
     val maxAttempts = initialPopulation * 10
     var attempts = 0
@@ -151,21 +154,26 @@ fun generateWorld(matrix: CellMatrix, initialPopulation: Int) {
 
         if (!matrix[x][y].isAlive) {
             matrix[x][y].isAlive = true
-            matrix[x][y].genes = mutableSetOf(setOf(6, 8).random())
+            when {
+                gameSettings.hasAllCells() -> matrix[x][y].genes =
+                    mutableSetOf(setOf(6, 8).random())
+
+                gameSettings.isPacificOnly() -> matrix[x][y].genes = mutableSetOf(6)
+                gameSettings.isAggressorsOnly() -> matrix[x][y].genes = mutableSetOf(8)
+            }
             populated++
         }
         attempts++
     }
 }
 
-fun getNextStatus(matrix: CellMatrix): CellMatrix {
+private fun getNextStatus(matrix: CellMatrix): CellMatrix {
     val newMatrix = Array(matrix.size) { Array(matrix[0].size) { Cell(false, mutableSetOf()) } }
     for (i in matrix.indices) {
         for (j in matrix[0].indices) {
             val cell = matrix[i][j]
-            val neighbors = getNeighbors(matrix, i, j)
             val newCell = newMatrix[i][j]
-            newCell.isAlive = newStatus(cell, neighbors)
+            newCell.isAlive = newStatus(cell, getNeighbors(matrix, i, j))
             if (newCell.isAlive) {
                 newCell.genes = cell.genes
                 newCell.turnsLived = cell.turnsLived
@@ -175,7 +183,7 @@ fun getNextStatus(matrix: CellMatrix): CellMatrix {
     return newMatrix
 }
 
-fun getNeighbors(matrix: CellMatrix, x: Int, y: Int): List<Cell> {
+private fun getNeighbors(matrix: CellMatrix, x: Int, y: Int): List<Cell> {
     val neighbors = mutableListOf<Cell>()
     val ref = arrayOf(
         intArrayOf(-1, -1),
@@ -197,7 +205,7 @@ fun getNeighbors(matrix: CellMatrix, x: Int, y: Int): List<Cell> {
     return neighbors
 }
 
-fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
+private fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
     val aliveNeighbors = neighbors.count { it.isAlive }
     val peacefulNeighbors = neighbors.filter { it.genes.contains(6) }
     val aggressiveNeighbors = neighbors.filter { it.genes.contains(8) }
@@ -219,14 +227,22 @@ fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
 
         cell.genes.contains(6) -> {
             when {
-                Random.nextInt(100) < 2 -> {
+                gameSettings.allowMutations && Random.nextInt(100) < 2 -> {
                     cell.genes.remove(6)
                     cell.genes.add(4)
                     cell.turnsLived = 0
                     true
                 }
 
-                cell.isAlive -> aliveNeighbors in 2..3
+                cell.isAlive -> {
+                    Log.d("_debug", "${aliveNeighbors in 2..3} ");
+                    aliveNeighbors in 2..3
+                }
+
+                !cell.isAlive -> {
+                    aliveNeighbors == 3
+                }
+
                 else -> false
             }
         }
@@ -234,7 +250,7 @@ fun newStatus(cell: Cell, neighbors: List<Cell>): Boolean {
         cell.genes.contains(8) -> {
             val canReproduce =
                 peacefulNeighbors.isNotEmpty() || cannibalNeighbors.isNotEmpty() && aggressiveCount in 2..3
-            if (canReproduce && Random.nextInt(100) < 5) {
+            if (gameSettings.allowMutations && canReproduce && Random.nextInt(100) < 5) {
                 cell.genes.add(7)
                 cell.genes.remove(8)
             }
