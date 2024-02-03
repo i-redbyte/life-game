@@ -1,5 +1,7 @@
 package org.redbyte.genom.opengl
 
+import android.util.Log
+
 class GameBoard(val width: Int, val height: Int) {
     val cells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
     private val newCells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
@@ -7,9 +9,13 @@ class GameBoard(val width: Int, val height: Int) {
     init {
         for (i in 0 until height) {
             for (j in 0 until width) {
-                cells[i][j] = Math.random() > 0.5
+                if (Math.random() < 0.2) {
+                    Log.d("_debug", "true: ");
+                    cells[i][j] = true // Включаем 20% клеток
+                }
             }
         }
+        Log.d("_debug", ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${cells.flatten().count { it }} ");
     }
 
     fun update() {
