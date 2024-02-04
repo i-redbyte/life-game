@@ -70,7 +70,8 @@ fun SettingsScreen(navController: NavHostController, sharedViewModel: SharedGame
                 onClick = {
                     val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
                     sharedViewModel.setGameSettings(gameSettings)
-                    navController.navigate("genomGame")
+//                    navController.navigate("genomGame")
+                    navController.navigate("openGLGame")
                 },
                 modifier = Modifier
                     .size(256.dp)

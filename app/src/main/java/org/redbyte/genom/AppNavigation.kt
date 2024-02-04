@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.redbyte.genom.opengl.OpenGLView
 
 @Composable
 fun AppNavigation() {
@@ -16,6 +17,9 @@ fun AppNavigation() {
         }
         composable("genomGame") {
             GenomGame(sharedViewModel)
+        }
+        composable("openGLGame") {
+            OpenGLView()
         }
     }
 }
