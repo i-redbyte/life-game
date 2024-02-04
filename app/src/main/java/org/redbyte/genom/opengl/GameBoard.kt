@@ -1,7 +1,5 @@
 package org.redbyte.genom.opengl
 
-import android.util.Log
-
 class GameBoard(val width: Int, val height: Int) {
     val cells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
     private val newCells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
@@ -9,13 +7,11 @@ class GameBoard(val width: Int, val height: Int) {
     init {
         for (i in 0 until height) {
             for (j in 0 until width) {
-                if (Math.random() < 0.2) {
-                    Log.d("_debug", "true: ");
-                    cells[i][j] = true // Включаем 20% клеток
+                if (Math.random() < 0.6) {
+                    cells[i][j] = true
                 }
             }
         }
-        Log.d("_debug", ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${cells.flatten().count { it }} ");
     }
 
     fun update() {
@@ -35,24 +31,26 @@ class GameBoard(val width: Int, val height: Int) {
 
     private fun countNeighbors(x: Int, y: Int): Int {
         val directions = arrayOf(
-            Pair(-1, -1), Pair(-1, 0), Pair(-1, 1),
-            Pair(0, -1), Pair(0, 1),
-            Pair(1, -1), Pair(1, 0), Pair(1, 1)
+            Pair(-1, -1),
+            Pair(-1, 0),
+            Pair(-1, 1),
+            Pair(0, -1),
+            Pair(0, 1),
+            Pair(1, -1),
+            Pair(1, 0),
+            Pair(1, 1)
         )
-
         var neighborCount = 0
-
         for ((dx, dy) in directions) {
             val neighborX = x + dx
             val neighborY = y + dy
 
-            if (neighborX in 0..<width && neighborY >= 0 && neighborY < height) {
+            if (neighborX in 0 until width && neighborY in 0 until height) {
                 if (cells[neighborY][neighborX]) {
                     neighborCount++
                 }
             }
         }
-
         return neighborCount
     }
 
