@@ -7,7 +7,7 @@ class GameBoard(val width: Int, val height: Int) {
     init {
         for (i in 0 until height) {
             for (j in 0 until width) {
-                if (Math.random() < 0.6) {
+                if (Math.random() < 0.5) {
                     cells[i][j] = true
                 }
             }

@@ -12,6 +12,7 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.log
 
 class GameRenderer(context: Context) : GLSurfaceView.Renderer {
     private val gameBoard: GameBoard
@@ -105,8 +106,8 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
         val aspectRatio: Float = width.toFloat() / height
         val projectionMatrix = FloatArray(16)
         val viewMatrix = FloatArray(16)
-
-        Matrix.orthoM(projectionMatrix, 0, -cellCountWidth / 2f * aspectRatio, cellCountWidth / 2f * aspectRatio, -cellCountHeight / 2f, cellCountHeight / 2f, -1f, 1f)
+        Log.d("_debug", "-----${cellCountHeight / 2f} ");
+        Matrix.orthoM(projectionMatrix, 0, -cellCountWidth / 2f * aspectRatio, cellCountWidth / 2f * aspectRatio, -cellCountHeight / 2f, 0f, -1f, 1f)
         Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
         Matrix.multiplyMM(finalMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
@@ -129,6 +130,7 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
                     Matrix.setIdentityM(modelMatrix, 0)
                     val posX = (j - gameBoard.width / 2f) * cellSize + cellSize / 2
                     val posY = (i - gameBoard.height / 2f) * cellSize + cellSize / 2
+
                     Matrix.translateM(modelMatrix, 0, posX, posY, 0f)
                     val resultMatrix = FloatArray(16)
                     Matrix.multiplyMM(resultMatrix, 0, finalMatrix, 0, modelMatrix, 0)
