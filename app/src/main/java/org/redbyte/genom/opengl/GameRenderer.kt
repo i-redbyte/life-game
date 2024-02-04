@@ -19,7 +19,7 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
     private var program: Int = 0
     private var positionHandle: Int = 0
     private var colorHandle: Int = 0
-    private val cellSize = 18
+    private val cellSize = 3
     private var matrixHandle: Int = 0
     private var viewMatrixHandle: Int = 0
     private val finalMatrix = FloatArray(16)
