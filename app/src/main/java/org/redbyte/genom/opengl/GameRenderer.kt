@@ -4,8 +4,6 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.os.Handler
-import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
@@ -21,11 +19,12 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
     private var program: Int = 0
     private var positionHandle: Int = 0
     private var colorHandle: Int = 0
-    private val cellSize = 8
+    private val cellSize = 18
     private var matrixHandle: Int = 0
     private var viewMatrixHandle: Int = 0
     private val finalMatrix = FloatArray(16)
-
+    private var cellCountWidth = 0
+    private var cellCountHeight = 0
     init {
         Log.d("_debug", "init: ");
         val displayMetrics = DisplayMetrics()
@@ -35,9 +34,9 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         Log.d("_debug", "$screenWidth, $screenHeight: ");
-        val cellCountWidth = screenWidth / cellSize
-        val cellCountHeight = screenHeight / cellSize
-
+        cellCountWidth = screenWidth / cellSize
+        cellCountHeight = screenHeight / cellSize
+        Log.d("_debug", "cellCountWidth = $cellCountWidth; cellCountHeight = $cellCountHeight");
         gameBoard = GameBoard(cellCountWidth, cellCountHeight)
 
         val cellVertices = floatArrayOf(
@@ -100,14 +99,14 @@ class GameRenderer(context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        Log.d("_debug", "onSurfaceChanged: ");
+        Log.d("_debug", "onSurfaceChanged: width = $width; height = $height");
         GLES20.glViewport(0, 0, width, height)
 
-        val ratio: Float = width.toFloat() / height.toFloat()
+        val aspectRatio: Float = width.toFloat() / height
         val projectionMatrix = FloatArray(16)
         val viewMatrix = FloatArray(16)
 
-        Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+        Matrix.orthoM(projectionMatrix, 0, -cellCountWidth / 2f * aspectRatio, cellCountWidth / 2f * aspectRatio, -cellCountHeight / 2f, cellCountHeight / 2f, -1f, 1f)
         Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
         Matrix.multiplyMM(finalMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
