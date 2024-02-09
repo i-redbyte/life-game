@@ -20,7 +20,7 @@ fun AppNavigation() {
             GenomGame(sharedViewModel)
         }
         composable("openGLGame") {
-            OpenGLView(GameBoard(10,10,10))
+            OpenGLView(GameBoard(10,10,20))
         }
     }
 }

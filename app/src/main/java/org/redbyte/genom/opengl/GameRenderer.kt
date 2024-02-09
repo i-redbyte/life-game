@@ -6,7 +6,6 @@ import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -14,6 +13,8 @@ import javax.microedition.khronos.opengles.GL10
 class GameRenderer(private val gameBoard: GameBoard) : Renderer {
     private var squareShaderProgram: Int = 0
     private val projectionMatrix = FloatArray(16)
+    private var lastUpdateTime = System.nanoTime()
+    private val updateInterval = 500_000_000
 
     // Vertex shader code
     private val vertexShaderCode = """
@@ -34,23 +35,21 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
     """.trimIndent()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        GLES20.glClearColor(0f, 0f, 0.2f, 1.0f) // Set background color
+        GLES20.glClearColor(0f, 0f, 0.2f, 1.0f)
 
         val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
         val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
 
-        // Create empty OpenGL ES Program
         squareShaderProgram = GLES20.glCreateProgram().also {
-            // Add the vertex shader to program
             GLES20.glAttachShader(it, vertexShader)
-            // Add the fragment shader to program
             GLES20.glAttachShader(it, fragmentShader)
-            // Creates OpenGL ES program executables
             GLES20.glLinkProgram(it)
         }
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        val currentTime = System.nanoTime()
+        val deltaTime = currentTime - lastUpdateTime
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         GLES20.glUseProgram(squareShaderProgram)
@@ -59,13 +58,11 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
         val colorHandle = GLES20.glGetUniformLocation(squareShaderProgram, "vColor")
         val mvpMatrixHandle = GLES20.glGetUniformLocation(squareShaderProgram, "uMVPMatrix")
 
-        // Prepare the coordinate data
-        val vertexStride = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
-
-        // Apply the projection and view transformation
+        val vertexStride = COORDS_PER_VERTEX * 4
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, projectionMatrix, 0)
 
         gameBoard.cells.forEachIndexed { y, row ->
+            val aliveColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
             row.forEachIndexed { x, alive ->
                 if (alive) {
                     val squareCoords =
@@ -88,13 +85,8 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
                         vertexBuffer
                     )
 
-                    val color = if (alive) floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f) else floatArrayOf(
-                        1.0f,
-                        0.0f,
-                        0.0f,
-                        1.0f
-                    ) // RGB green
-                    GLES20.glUniform4fv(colorHandle, 1, color, 0)
+
+                    GLES20.glUniform4fv(colorHandle, 1, aliveColor, 0)
 
                     GLES20.glDrawArrays(
                         GLES20.GL_TRIANGLE_STRIP,
@@ -105,6 +97,10 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
                     GLES20.glDisableVertexAttribArray(positionHandle)
                 }
             }
+        }
+        if (deltaTime >= updateInterval) {
+            gameBoard.update()
+            lastUpdateTime = currentTime
         }
     }
 
@@ -124,7 +120,6 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
         }
     }
 
-
     private fun loadShader(type: Int, shaderCode: String): Int {
         return GLES20.glCreateShader(type).also { shader ->
             GLES20.glShaderSource(shader, shaderCode)
@@ -133,17 +128,16 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
     }
 
     private fun calculateSquareCoords(x: Int, y: Int, width: Int, height: Int): FloatArray {
-        // Нормализуем координаты так, чтобы клетки помещались на экран
         val normalizedCellWidth = 2.0f / width
         val normalizedCellHeight = 2.0f / height
         val normalizedX = -1f + x * normalizedCellWidth
         val normalizedY = 1f - y * normalizedCellHeight
 
         return floatArrayOf(
-            normalizedX, normalizedY, // top left
-            normalizedX, normalizedY - normalizedCellHeight, // bottom left
-            normalizedX + normalizedCellWidth, normalizedY, // top right
-            normalizedX + normalizedCellWidth, normalizedY - normalizedCellHeight // bottom right
+            normalizedX, normalizedY,
+            normalizedX, normalizedY - normalizedCellHeight,
+            normalizedX + normalizedCellWidth, normalizedY,
+            normalizedX + normalizedCellWidth, normalizedY - normalizedCellHeight
         )
     }
 
