@@ -1,6 +1,5 @@
 package org.redbyte.genom.opengl
 
-
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
@@ -10,12 +9,15 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 
-class GameRenderer(private val gameBoard: GameBoard) : Renderer {
+class GameRenderer(
+    private val gameBoard: GameBoard,
+    private val onCellCountUpdate: (Int, Int) -> Unit
+) : Renderer {
     private var squareShaderProgram: Int = 0
     private val projectionMatrix = FloatArray(16)
     private var lastUpdateTime = System.nanoTime()
-    private val updateInterval = 500_000_000
-
+    private val updateInterval = 128_000_000
+    private var turn = 0
     // Vertex shader code
     private val vertexShaderCode = """
         uniform mat4 uMVPMatrix;
@@ -100,6 +102,7 @@ class GameRenderer(private val gameBoard: GameBoard) : Renderer {
         }
         if (deltaTime >= updateInterval) {
             gameBoard.update()
+            onCellCountUpdate(gameBoard.countLivingCells(), ++turn)
             lastUpdateTime = currentTime
         }
     }

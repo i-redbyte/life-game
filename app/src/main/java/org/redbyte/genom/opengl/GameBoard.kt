@@ -2,7 +2,7 @@ package org.redbyte.genom.opengl
 
 import android.util.Log
 
-class GameBoard(val width: Int, val height: Int, initialPopulation: Int) {
+class GameBoard(val width: Int, val height: Int, val initialPopulation: Int) {
     val cells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
     private val newCells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
 
@@ -18,12 +18,6 @@ class GameBoard(val width: Int, val height: Int, initialPopulation: Int) {
                 populated++
             }
         }
-        Log.d(
-            "_debug",
-            "cells: ${
-                cells.flatten().count { it }
-            } pCount = $pCount, maxCount = $maxCount initialPopulation = $initialPopulation"
-        )
     }
 
     fun update() {
@@ -33,7 +27,6 @@ class GameBoard(val width: Int, val height: Int, initialPopulation: Int) {
                 newCells[i][j] = if (cells[i][j]) neighbors in 2..3 else neighbors == 3
             }
         }
-
         for (i in 0 until height) {
             for (j in 0 until width) {
                 cells[i][j] = newCells[i][j]
@@ -41,6 +34,7 @@ class GameBoard(val width: Int, val height: Int, initialPopulation: Int) {
         }
     }
 
+    fun countLivingCells() = cells.flatten().count { it }
     private fun countNeighbors(x: Int, y: Int): Int {
         val directions = arrayOf(
             Pair(-1, -1),
