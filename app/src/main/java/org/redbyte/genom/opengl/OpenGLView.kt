@@ -8,14 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
-fun OpenGLView() {
+fun OpenGLView(gameBoard: GameBoard) {
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
             GLSurfaceView(context).apply {
                 setEGLContextClientVersion(2)
-                //preserveEGLContextOnPause = true
-                setRenderer(GameRenderer(context))
+                setRenderer(GameRenderer(gameBoard)) // Настраиваем наш кастомный рендерер
+                renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
             }
         },
         update = { view ->

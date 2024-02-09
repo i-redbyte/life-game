@@ -1,17 +1,29 @@
 package org.redbyte.genom.opengl
 
-class GameBoard(val width: Int, val height: Int) {
+import android.util.Log
+
+class GameBoard(val width: Int, val height: Int, initialPopulation: Int) {
     val cells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
     private val newCells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
 
     init {
-        for (i in 0 until height) {
-            for (j in 0 until width) {
-                if (Math.random() < 0.5) {
-                    cells[i][j] = true
-                }
+        var populated = 0
+        val maxCount = cells.size * cells[0].size
+        val pCount = if (initialPopulation > maxCount) maxCount / 10 else initialPopulation
+        while (populated < pCount) {
+            val x = cells.indices.random()
+            val y = cells[0].indices.random()
+            if (!cells[x][y]) {
+                cells[x][y] = true
+                populated++
             }
         }
+        Log.d(
+            "_debug",
+            "cells: ${
+                cells.flatten().count { it }
+            } pCount = $pCount, maxCount = $maxCount initialPopulation = $initialPopulation"
+        )
     }
 
     fun update() {
@@ -55,3 +67,5 @@ class GameBoard(val width: Int, val height: Int) {
     }
 
 }
+
+
