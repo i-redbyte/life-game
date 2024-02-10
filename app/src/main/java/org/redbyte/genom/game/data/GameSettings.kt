@@ -1,4 +1,4 @@
-package org.redbyte.genom.data
+package org.redbyte.genom.game.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

@@ -3,7 +3,7 @@ package org.redbyte.genom
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.redbyte.genom.data.Cell
+import org.redbyte.genom.game.data.Cell
 
 class GenomGameTest {
     private lateinit var matrix: CellMatrix

@@ -15,7 +15,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import org.redbyte.genom.data.GameSettings
+import org.redbyte.genom.game.data.GameSettings
 
 @Composable
 fun SettingsScreen(navController: NavHostController, sharedViewModel: SharedGameViewModel) {

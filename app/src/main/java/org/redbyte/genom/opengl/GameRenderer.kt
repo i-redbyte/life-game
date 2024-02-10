@@ -3,6 +3,7 @@ package org.redbyte.genom.opengl
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
+import org.redbyte.genom.game.GameBoard
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
@@ -63,10 +64,10 @@ class GameRenderer(
         val vertexStride = COORDS_PER_VERTEX * 4
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, projectionMatrix, 0)
 
-        gameBoard.cells.forEachIndexed { y, row ->
+        gameBoard.matrix.forEachIndexed { y, row ->
             val aliveColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
-            row.forEachIndexed { x, alive ->
-                if (alive) {
+            row.forEachIndexed { x, cell ->
+                if (cell.isAlive) {
                     val squareCoords =
                         calculateSquareCoords(x, y, gameBoard.width, gameBoard.height)
                     val vertexBuffer = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
