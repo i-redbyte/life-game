@@ -1,6 +1,7 @@
 package org.redbyte.genom
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -66,25 +67,31 @@ fun SettingsScreen(navController: NavHostController, sharedViewModel: SharedGame
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
-                    sharedViewModel.setGameSettings(gameSettings)
-//                    navController.navigate("genomGame")
-                    navController.navigate("openGLGame")
-                },
-                modifier = Modifier
-                    .size(256.dp)
-                    .clip(CircleShape),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
-                    bitmap = ImageBitmap.imageResource(R.drawable.ic_biohazard),
-                    contentDescription = "Запустить игру",
-                    modifier = Modifier.fillMaxSize()
+                    bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard),
+                    contentDescription = "Compose Game",
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(1f)
+                        .clickable {
+                            val gameSettings = GameSettings(hasPacifists, hasAggressors, allowMutations)
+                            sharedViewModel.setGameSettings(gameSettings)
+                            navController.navigate("genomGame")
+                        }
+                )
+                Image(
+                    bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard2d),
+                    contentDescription = "OpenGL Game",
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(1f)
+                        .clickable { navController.navigate("openGLGame") }
                 )
             }
-            Text("Запустить игру", color = Color.Green)
         }
     }
 

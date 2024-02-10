@@ -1,7 +1,5 @@
 package org.redbyte.genom.opengl
 
-import android.util.Log
-
 class GameBoard(val width: Int, val height: Int, val initialPopulation: Int) {
     val cells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
     private val newCells: Array<Array<Boolean>> = Array(height) { Array(width) { false } }
