@@ -1,4 +1,5 @@
 plugins {
+    kotlin("kapt")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
@@ -69,7 +70,9 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
     implementation("androidx.navigation:navigation-runtime-ktx:$navVersion")
     implementation("androidx.navigation:navigation-compose:$navVersion")
-
+    //dagger2
+    implementation("com.google.dagger:dagger:2.28.3")
+    kapt("com.google.dagger:dagger-compiler:2.28.3")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.redbyte.genom.common.GameBoard
+import org.redbyte.genom.common.data.GameSettings
 import org.redbyte.genom.render.compose.GenomGame
 import org.redbyte.genom.settings.SettingsScreen
 import org.redbyte.genom.render.opengl.Genom2DGame
@@ -18,10 +19,10 @@ fun AppNavigation() {
             SettingsScreen(navController)
         }
         composable("genomGame") {
-            GenomGame(GameBoard(10, 10, 30))
+            GenomGame(GameBoard(GameSettings(10, 10, 30)))
         }
         composable("openGLGame") {
-            Genom2DGame(GameBoard(32, 32, 256))
+            Genom2DGame(GameBoard(GameSettings()))
         }
     }
 }

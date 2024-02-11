@@ -69,7 +69,7 @@ class GameRenderer(
             row.forEachIndexed { x, cell ->
                 if (cell.isAlive) {
                     val squareCoords =
-                        calculateSquareCoords(x, y, gameBoard.width, gameBoard.height)
+                        calculateSquareCoords(x, y, gameBoard.settings.width, gameBoard.settings.height)
                     val vertexBuffer = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
                         order(ByteOrder.nativeOrder())
                         asFloatBuffer().apply {

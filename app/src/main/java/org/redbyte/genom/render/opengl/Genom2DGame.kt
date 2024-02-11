@@ -18,7 +18,7 @@ import org.redbyte.genom.common.GameBoard
 
 @Composable
 fun Genom2DGame(gameBoard: GameBoard) {
-    val livingCellsCount = remember { mutableIntStateOf(gameBoard.initialPopulation) }
+    val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {

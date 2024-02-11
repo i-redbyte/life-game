@@ -5,10 +5,12 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GameSettings(
-    val hasPacifists: Boolean,
-    val hasAggressors: Boolean,
-    val allowMutations: Boolean,
-    val initialPopulation: Int = 1300
+    val width: Int = 32,
+    val height: Int = 32,
+    val initialPopulation: Int= 256,
+    val hasPacifists: Boolean = true,
+    val hasAggressors: Boolean = false,
+    val allowMutations: Boolean = false,
 ) : Parcelable {
     fun isPacificOnly(): Boolean = hasPacifists && !hasAggressors
     fun isAggressorsOnly(): Boolean = !hasPacifists && hasAggressors

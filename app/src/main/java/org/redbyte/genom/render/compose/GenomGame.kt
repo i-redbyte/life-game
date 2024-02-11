@@ -37,7 +37,7 @@ fun GenomGame(gameBoard: GameBoard) {
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
-        val cellSize = screenWidth / gameBoard.width
+        val cellSize = screenWidth / gameBoard.settings.width
         val aggressiveCount = remember { mutableIntStateOf(0) }
         val peacefulCount = remember { mutableIntStateOf(0) }
         val cannibalCount = remember { mutableIntStateOf(0) }

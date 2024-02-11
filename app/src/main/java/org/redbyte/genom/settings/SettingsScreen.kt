@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.redbyte.genom.R
-import org.redbyte.genom.common.data.GameSettings
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
@@ -77,8 +76,13 @@ fun SettingsScreen(navController: NavHostController) {
                         .weight(1f)
                         .aspectRatio(1f)
                         .clickable {
-                            val gameSettings =
-                                GameSettings(hasPacifists, hasAggressors, allowMutations)
+                            // TODO: release set settings
+//                            val gameSettings =
+//                                GameSettings(
+//                                    hasPacifists=  hasPacifists,
+//                                    hasAggressors = hasAggressors,
+//                                    allowMutations = allowMutations
+//                                )
                             navController.navigate("genomGame")
                         }
                 )
