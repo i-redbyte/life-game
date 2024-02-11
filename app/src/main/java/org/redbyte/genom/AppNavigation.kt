@@ -5,22 +5,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.redbyte.genom.game.GameBoard
-import org.redbyte.genom.opengl.OpenGLView
+import org.redbyte.genom.common.GameBoard
+import org.redbyte.genom.render.compose.GenomGame
+import org.redbyte.genom.settings.SettingsScreen
+import org.redbyte.genom.render.opengl.Genom2DGame
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val sharedViewModel: SharedGameViewModel = viewModel()
     NavHost(navController = navController, startDestination = "settingsGame") {
         composable("settingsGame") {
-            SettingsScreen(navController, sharedViewModel)
+            SettingsScreen(navController)
         }
         composable("genomGame") {
-            GenomGame(GameBoard(10, 10, 30, sharedViewModel.gameSettings.value))
+            GenomGame(GameBoard(10, 10, 30))
         }
         composable("openGLGame") {
-            OpenGLView(GameBoard(32, 32, 256, sharedViewModel.gameSettings.value))
+            Genom2DGame(GameBoard(32, 32, 256))
         }
     }
 }

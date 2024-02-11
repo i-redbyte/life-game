@@ -1,8 +1,8 @@
-package org.redbyte.genom.game
+package org.redbyte.genom.common
 
 import android.util.Log
-import org.redbyte.genom.game.data.Cell
-import org.redbyte.genom.game.data.GameSettings
+import org.redbyte.genom.common.data.Cell
+import org.redbyte.genom.common.data.GameSettings
 
 typealias CellMatrix = Array<Array<Cell>>
 
@@ -10,7 +10,7 @@ class GameBoard(
     val width: Int,
     val height: Int,
     val initialPopulation: Int,
-    settings: GameSettings? // TODO: add settings
+    settings: GameSettings? = null // TODO: add settings
 ) {
 
     val matrix: CellMatrix = Array(width) { Array(height) { Cell(false, mutableSetOf(6)) } }

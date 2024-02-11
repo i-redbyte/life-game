@@ -1,9 +1,9 @@
-package org.redbyte.genom.opengl
+package org.redbyte.genom.render.opengl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
-import org.redbyte.genom.game.GameBoard
+import org.redbyte.genom.common.GameBoard
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig

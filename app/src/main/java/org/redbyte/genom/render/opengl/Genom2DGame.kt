@@ -1,4 +1,4 @@
-package org.redbyte.genom.opengl
+package org.redbyte.genom.render.opengl
 
 import android.opengl.GLSurfaceView
 import androidx.compose.foundation.layout.Box
@@ -14,10 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import org.redbyte.genom.game.GameBoard
+import org.redbyte.genom.common.GameBoard
 
 @Composable
-fun OpenGLView(gameBoard: GameBoard) {
+fun Genom2DGame(gameBoard: GameBoard) {
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
 

@@ -1,4 +1,4 @@
-package org.redbyte.genom
+package org.redbyte.genom.render.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -27,7 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.redbyte.genom.game.GameBoard
+import org.redbyte.genom.common.GameBoard
 
 @Composable
 fun GenomGame(gameBoard: GameBoard) {
