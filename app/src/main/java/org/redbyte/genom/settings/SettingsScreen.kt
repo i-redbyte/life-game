@@ -12,11 +12,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import org.redbyte.genom.R
+import org.redbyte.genom.common.data.GameSettings
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
+    val viewModel: GameSettingsViewModel = viewModel()
     val dialogState = remember { mutableStateOf(false) }
     var hasPacifists by remember { mutableStateOf(true) }
     var hasAggressors by remember { mutableStateOf(false) }
@@ -77,12 +80,13 @@ fun SettingsScreen(navController: NavHostController) {
                         .aspectRatio(1f)
                         .clickable {
                             // TODO: release set settings
-//                            val gameSettings =
-//                                GameSettings(
-//                                    hasPacifists=  hasPacifists,
-//                                    hasAggressors = hasAggressors,
-//                                    allowMutations = allowMutations
-//                                )
+                            val gameSettings =
+                                GameSettings(
+                                    hasPacifists=  hasPacifists,
+                                    hasAggressors = hasAggressors,
+                                    allowMutations = allowMutations
+                                )
+                            viewModel.setupSettings(gameSettings)
                             navController.navigate("genomGame")
                         }
                 )

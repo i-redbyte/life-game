@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -14,10 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.redbyte.genom.common.GameBoard
+import org.redbyte.genom.common.data.GameSettings
+import org.redbyte.genom.settings.GameSettingsViewModel
 
 @Composable
-fun Genom2DGame(gameBoard: GameBoard) {
+fun Genom2DGame() {
+    val viewModel: GameSettingsViewModel = viewModel()
+    val gameBoard = viewModel.getGameBoard()
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
 

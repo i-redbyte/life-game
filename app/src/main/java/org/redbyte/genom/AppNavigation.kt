@@ -19,10 +19,10 @@ fun AppNavigation() {
             SettingsScreen(navController)
         }
         composable("genomGame") {
-            GenomGame(GameBoard(GameSettings(10, 10, 30)))
+            GenomGame()
         }
         composable("openGLGame") {
-            Genom2DGame(GameBoard(GameSettings()))
+            Genom2DGame()
         }
     }
 }

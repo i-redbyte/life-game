@@ -1,6 +1,5 @@
 package org.redbyte.genom.common
 
-import android.util.Log
 import org.redbyte.genom.common.data.Cell
 import org.redbyte.genom.common.data.GameSettings
 
@@ -46,7 +45,6 @@ class GameBoard(val settings: GameSettings) {
                 matrix[i][j] = newMatrix[i][j]
             }
         }
-        Log.d("_debug", "V ==== ${matrix.flatten().count { it.isAlive }} ")
     }
 
     fun countLivingCells() = matrix.flatten().count { it.isAlive }
