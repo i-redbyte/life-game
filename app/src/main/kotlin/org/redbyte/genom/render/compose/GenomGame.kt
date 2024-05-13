@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.redbyte.genom.settings.GameSettingsViewModel
+import org.redbyte.genom.settings.SharedGameSettingsViewModel
 
 @Composable
-fun GenomGame() {
-    val viewModel: GameSettingsViewModel = viewModel()
+fun GenomGame(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }

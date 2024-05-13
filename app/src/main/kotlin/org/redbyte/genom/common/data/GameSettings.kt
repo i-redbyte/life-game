@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class GameSettings(
     val width: Int = 32,
     val height: Int = 32,
-    val initialPopulation: Int= 128,
+    val initialPopulation: Int = 128,
     val hasPacifists: Boolean = true,
     val hasAggressors: Boolean = false,
     val allowMutations: Boolean = false,

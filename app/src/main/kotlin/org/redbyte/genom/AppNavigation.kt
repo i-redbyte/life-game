@@ -10,19 +10,21 @@ import org.redbyte.genom.common.data.GameSettings
 import org.redbyte.genom.render.compose.GenomGame
 import org.redbyte.genom.settings.SettingsScreen
 import org.redbyte.genom.render.opengl.Genom2DGame
+import org.redbyte.genom.settings.SharedGameSettingsViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val sharedViewModel: SharedGameSettingsViewModel = viewModel()
     NavHost(navController = navController, startDestination = "settingsGame") {
         composable("settingsGame") {
-            SettingsScreen(navController)
+            SettingsScreen(navController, sharedViewModel)
         }
         composable("genomGame") {
-            GenomGame()
+            GenomGame(sharedViewModel)
         }
         composable("openGLGame") {
-            Genom2DGame()
+            Genom2DGame(sharedViewModel)
         }
     }
 }

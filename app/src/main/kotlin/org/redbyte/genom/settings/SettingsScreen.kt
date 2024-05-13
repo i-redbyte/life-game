@@ -3,6 +3,7 @@ package org.redbyte.genom.settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,19 +12,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import org.redbyte.genom.R
 import org.redbyte.genom.common.data.GameSettings
 
 @Composable
-fun SettingsScreen(navController: NavHostController) {
-    val viewModel: GameSettingsViewModel = viewModel()
+fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
     val dialogState = remember { mutableStateOf(false) }
     var hasPacifists by remember { mutableStateOf(true) }
     var hasAggressors by remember { mutableStateOf(false) }
     var allowMutations by remember { mutableStateOf(false) }
+    var width by remember { mutableStateOf("32") }
+    var height by remember { mutableStateOf("32") }
+    var initialPopulation by remember { mutableStateOf("128") }
 
     Surface(color = Color(0xFF1B1B1B)) {
         Column(
@@ -32,6 +35,19 @@ fun SettingsScreen(navController: NavHostController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                "Настройки игры",
+                color = Color.Green,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            NumberInputField(value = width, onValueChange = { width = it }, label = "Ширина поля")
+            NumberInputField(value = height, onValueChange = { height = it }, label = "Высота поля")
+            NumberInputField(
+                value = initialPopulation,
+                onValueChange = { initialPopulation = it },
+                label = "Начальное население"
+            )
             Text(
                 "Выберите типы клеток",
                 color = Color.Green,
@@ -79,12 +95,14 @@ fun SettingsScreen(navController: NavHostController) {
                         .weight(1f)
                         .aspectRatio(1f)
                         .clickable {
-                            // TODO: release set settings
                             val gameSettings =
                                 GameSettings(
-                                    hasPacifists=  hasPacifists,
+                                    hasPacifists = hasPacifists,
                                     hasAggressors = hasAggressors,
-                                    allowMutations = allowMutations
+                                    allowMutations = allowMutations,
+                                    width = width.toInt(),
+                                    height = height.toInt(),
+                                    initialPopulation = initialPopulation.toInt(),
                                 )
                             viewModel.setupSettings(gameSettings)
                             navController.navigate("genomGame")
@@ -133,3 +151,19 @@ fun CheckboxWithText(text: String, checked: Boolean, onCheckedChange: (Boolean) 
 }
 
 
+@Composable
+fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: String) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = Color.Green) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = Color.White,
+            backgroundColor = Color(0xFF1B1B1B),
+            focusedIndicatorColor = Color.Green,
+            unfocusedIndicatorColor = Color.LightGray,
+        )
+    )
+}
