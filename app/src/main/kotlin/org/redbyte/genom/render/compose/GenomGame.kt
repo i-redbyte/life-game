@@ -25,10 +25,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.redbyte.genom.settings.SharedGameSettingsViewModel
+import org.redbyte.genom.ui.theme.baseGreen
+import org.redbyte.genom.ui.theme.baseYellow
+import org.redbyte.genom.ui.theme.baseRed
+import org.redbyte.genom.ui.theme.blueSapphire
 
 @Composable
 fun GenomGame(viewModel: SharedGameSettingsViewModel) {
@@ -100,15 +103,10 @@ fun GenomGame(viewModel: SharedGameSettingsViewModel) {
                 matrix.forEachIndexed { i, row ->
                     row.forEachIndexed { j, cell ->
                         val color = when {
-                            cell.isAlive && cell.genes.contains(4) -> Color(
-                                android.graphics.Color.parseColor(
-                                    "#FFFFC107"
-                                )
-                            )
-
-                            cell.isAlive && cell.genes.contains(6) -> Color.Green
-                            cell.isAlive && cell.genes.contains(7) -> Color.Blue
-                            cell.isAlive && cell.genes.contains(8) -> Color.Red
+                            cell.isAlive && cell.genes.contains(4) -> baseYellow
+                            cell.isAlive && cell.genes.contains(6) -> baseGreen
+                            cell.isAlive && cell.genes.contains(7) -> blueSapphire
+                            cell.isAlive && cell.genes.contains(8) -> baseRed
                             else -> Color.White
                         }
                         drawCircle(

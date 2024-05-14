@@ -8,7 +8,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
@@ -17,6 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.redbyte.genom.R
 import org.redbyte.genom.common.data.GameSettings
+import org.redbyte.genom.ui.theme.baseBlack
+import org.redbyte.genom.ui.theme.baseDarkGray
+import org.redbyte.genom.ui.theme.baseGreen
+import org.redbyte.genom.ui.theme.baseLightGray
+import org.redbyte.genom.ui.theme.baseWhite
+import org.redbyte.genom.ui.theme.greenSeaWave
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
@@ -28,7 +33,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
     var height by remember { mutableStateOf("32") }
     var initialPopulation by remember { mutableStateOf("128") }
 
-    Surface(color = Color(0xFF1B1B1B)) {
+    Surface(color = baseBlack) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -37,7 +42,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
         ) {
             Text(
                 "Настройки игры",
-                color = Color.Green,
+                color = greenSeaWave,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -50,7 +55,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             )
             Text(
                 "Выберите типы клеток",
-                color = Color.Green,
+                color = greenSeaWave,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -142,11 +147,11 @@ fun CheckboxWithText(text: String, checked: Boolean, onCheckedChange: (Boolean) 
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = CheckboxDefaults.colors(
-                checkedColor = Color.Green,
-                uncheckedColor = Color.DarkGray
+                checkedColor = greenSeaWave,
+                uncheckedColor = baseDarkGray
             )
         )
-        Text(text, color = Color.White)
+        Text(text, color = baseWhite)
     }
 }
 
@@ -156,14 +161,14 @@ fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: Stri
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = Color.Green) },
+        label = { Text(label, color = greenSeaWave) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            backgroundColor = Color(0xFF1B1B1B),
-            focusedIndicatorColor = Color.Green,
-            unfocusedIndicatorColor = Color.LightGray,
+            textColor = baseWhite,
+            backgroundColor = baseBlack,
+            focusedIndicatorColor = greenSeaWave,
+            unfocusedIndicatorColor = baseLightGray,
         )
     )
 }

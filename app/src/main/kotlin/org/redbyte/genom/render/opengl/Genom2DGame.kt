@@ -10,12 +10,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.redbyte.genom.settings.SharedGameSettingsViewModel
+import org.redbyte.genom.ui.theme.baseTeal
 
 @Composable
 fun Genom2DGame(viewModel: SharedGameSettingsViewModel) {
@@ -41,7 +40,7 @@ fun Genom2DGame(viewModel: SharedGameSettingsViewModel) {
         Text(
             text = "Количество живых клеток: ${livingCellsCount.intValue}\n" +
                     "Ход: ${turnGame.intValue}",
-            color = Color(0xFF009688),
+            color = baseTeal,
             fontSize = 18.sp,
             modifier = Modifier
                 .align(Alignment.TopStart)
