@@ -63,6 +63,7 @@ fun GenomGame(viewModel: SharedGameSettingsViewModel) {
                 turnNumber.intValue++
                 delay(250)
                 gameBoard.update()
+                delay(500)
                 matrix = gameBoard.matrix.clone()
             }
         }

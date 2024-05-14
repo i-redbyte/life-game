@@ -64,12 +64,12 @@ class GameBoard(val settings: GameSettings) {
         for ((dx, dy) in directions) {
             val neighborX = x + dx
             val neighborY = y + dy
-
-            if (neighborX in 0 until settings.height && neighborY in 0 until settings.width) {
-                if (matrix[neighborY][neighborX].isAlive) {
+            if (neighborX in 0 until settings.width && neighborY in 0 until settings.height) {
+                if (matrix[neighborX][neighborY].isAlive) {
                     neighborCount++
                 }
             }
+
         }
         return neighborCount
     }
