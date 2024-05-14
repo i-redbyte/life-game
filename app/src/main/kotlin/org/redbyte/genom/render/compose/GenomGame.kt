@@ -33,6 +33,8 @@ import org.redbyte.genom.ui.theme.baseYellow
 import org.redbyte.genom.ui.theme.baseRed
 import org.redbyte.genom.ui.theme.blueSapphire
 
+private const val DELAY_UPDATE_WORLD = 250L
+
 @Composable
 fun GenomGame(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
@@ -61,9 +63,8 @@ fun GenomGame(viewModel: SharedGameSettingsViewModel) {
                 aggressiveCount.intValue =
                     gameBoard.matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
                 turnNumber.intValue++
-                delay(250)
+                delay(DELAY_UPDATE_WORLD)
                 gameBoard.update()
-                delay(500)
                 matrix = gameBoard.matrix.clone()
             }
         }
