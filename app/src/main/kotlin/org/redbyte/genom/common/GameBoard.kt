@@ -42,7 +42,7 @@ class GameBoard(val settings: GameSettings) {
         }
         for (i in matrix.indices) {
             for (j in matrix[0].indices) {
-                matrix[i][j] = newMatrix[i][j]
+                matrix[i][j] = Cell(newMatrix[i][j].isAlive, newMatrix[i][j].genes.toMutableSet())
             }
         }
     }
