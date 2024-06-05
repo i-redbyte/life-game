@@ -24,16 +24,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.redbyte.genom.R
 import org.redbyte.genom.settings.SharedGameSettingsViewModel
 import org.redbyte.genom.ui.theme.baseGreen
 import org.redbyte.genom.ui.theme.baseYellow
 import org.redbyte.genom.ui.theme.baseRed
 import org.redbyte.genom.ui.theme.blueSapphire
 
-private const val DELAY_UPDATE_WORLD = 250L
+private const val DELAY_UPDATE_WORLD = 125L
 
 @Composable
 fun GenomGame(viewModel: SharedGameSettingsViewModel) {
@@ -90,13 +92,16 @@ fun GenomGame(viewModel: SharedGameSettingsViewModel) {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text("Ход: ${turnNumber.intValue}")
-                    Text("Агрессоры: ${aggressiveCount.intValue}")
-                    Text("Каннибалы: ${cannibalCount.intValue}")
-                    Text("Пацифисты: ${peacefulCount.intValue}")
-                    Text("Психи: ${psychoCount.intValue}")
+                    Text(stringResource(R.string.turn, turnNumber.intValue))
+                    Text(stringResource(R.string.aggressors, aggressiveCount.intValue))
+                    Text(stringResource(R.string.cannibals, cannibalCount.intValue))
+                    Text(stringResource(R.string.pacifists, peacefulCount.intValue))
+                    Text(stringResource(R.string.psychos, psychoCount.intValue))
                     Button(onClick = { isPaused = !isPaused }) {
-                        Text(if (isPaused) "Продолжить" else "Пауза")
+                        Text(
+                            if (isPaused) stringResource(R.string.continue_game)
+                            else stringResource(R.string.pause)
+                        )
                     }
                 }
             }

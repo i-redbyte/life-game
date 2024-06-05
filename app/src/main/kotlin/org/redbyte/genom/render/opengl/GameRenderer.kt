@@ -19,6 +19,8 @@ class GameRenderer(
     private var lastUpdateTime = System.nanoTime()
     private val updateInterval = 128_000_000
     private var turn = 0
+
+    // TODO: load from files: fragment_shader.glsl vertex_shader,.glsl
     // Vertex shader code
     private val vertexShaderCode = """
         uniform mat4 uMVPMatrix;

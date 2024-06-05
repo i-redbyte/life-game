@@ -10,18 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.redbyte.genom.R
 import org.redbyte.genom.common.data.GameSettings
-import org.redbyte.genom.ui.theme.baseBlack
-import org.redbyte.genom.ui.theme.baseDarkGray
-import org.redbyte.genom.ui.theme.baseGreen
-import org.redbyte.genom.ui.theme.baseLightGray
-import org.redbyte.genom.ui.theme.baseWhite
-import org.redbyte.genom.ui.theme.greenSeaWave
+import org.redbyte.genom.ui.theme.*
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
@@ -41,26 +37,26 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Настройки игры",
+                stringResource(R.string.game_settings),
                 color = greenSeaWave,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
-            NumberInputField(value = width, onValueChange = { width = it }, label = "Ширина поля")
-            NumberInputField(value = height, onValueChange = { height = it }, label = "Высота поля")
+            NumberInputField(value = width, onValueChange = { width = it }, label = stringResource(R.string.field_width))
+            NumberInputField(value = height, onValueChange = { height = it }, label = stringResource(R.string.field_height))
             NumberInputField(
                 value = initialPopulation,
                 onValueChange = { initialPopulation = it },
-                label = "Начальное население"
+                label = stringResource(R.string.initial_population)
             )
             Text(
-                "Выберите типы клеток",
+                stringResource(R.string.select_cell_types),
                 color = greenSeaWave,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
             CheckboxWithText(
-                text = "Пацифисты",
+                text = stringResource(R.string.title_pacifists),
                 checked = hasPacifists,
                 onCheckedChange = { checked ->
                     if (!checked && !hasAggressors) {
@@ -71,7 +67,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                 }
             )
             CheckboxWithText(
-                text = "Агрессоры",
+                text = stringResource(R.string.title_aggressors),
                 checked = hasAggressors,
                 onCheckedChange = { checked ->
                     if (!checked && !hasPacifists) {
@@ -83,7 +79,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             )
             if (hasPacifists && hasAggressors) {
                 CheckboxWithText(
-                    text = "Разрешить мутации",
+                    text = stringResource(R.string.allow_mutations),
                     checked = allowMutations,
                     onCheckedChange = { allowMutations = it }
                 )
@@ -95,7 +91,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             ) {
                 Image(
                     bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard),
-                    contentDescription = "Compose Game",
+                    contentDescription = stringResource(R.string.compose_game),
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
@@ -115,7 +111,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                 )
                 Image(
                     bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard2d),
-                    contentDescription = "OpenGL Game",
+                    contentDescription = stringResource(R.string.opengl_game),
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
@@ -130,10 +126,10 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             onDismissRequest = { dialogState.value = false },
             confirmButton = {
                 Button(onClick = { dialogState.value = false }) {
-                    Text("ОК")
+                    Text(stringResource(R.string.ok))
                 }
             },
-            text = { Text("Хотя бы один вид клеток должен быть выбран.") }
+            text = { Text(stringResource(R.string.cell_type_selection_warning)) }
         )
     }
 }
@@ -154,7 +150,6 @@ fun CheckboxWithText(text: String, checked: Boolean, onCheckedChange: (Boolean) 
         Text(text, color = baseWhite)
     }
 }
-
 
 @Composable
 fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: String) {
