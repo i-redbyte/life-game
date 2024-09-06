@@ -1,4 +1,4 @@
-package org.redbyte.genom.render.opengl
+package org.redbyte.genom.ui.render.opengl
 
 import android.opengl.GLSurfaceView
 import androidx.compose.foundation.layout.Box

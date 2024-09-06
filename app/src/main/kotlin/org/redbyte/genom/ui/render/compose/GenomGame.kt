@@ -1,4 +1,4 @@
-package org.redbyte.genom.render.compose
+package org.redbyte.genom.ui.render.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically

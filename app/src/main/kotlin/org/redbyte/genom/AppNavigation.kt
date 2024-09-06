@@ -5,9 +5,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.redbyte.genom.render.compose.GenomGame
+import org.redbyte.genom.ui.render.compose.GenomGame
 import org.redbyte.genom.settings.SettingsScreen
-import org.redbyte.genom.render.opengl.Genom2DGame
+import org.redbyte.genom.ui.render.opengl.Genom2DGame
 import org.redbyte.genom.settings.SharedGameSettingsViewModel
 
 @Composable

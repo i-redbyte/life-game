@@ -1,4 +1,4 @@
-package org.redbyte.genom.render.opengl
+package org.redbyte.genom.ui.render.opengl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
