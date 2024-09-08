@@ -1,14 +1,14 @@
-package org.redbyte.genom
+package org.redbyte.life
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.redbyte.genom.ui.render.compose.GenomGame
-import org.redbyte.genom.settings.SettingsScreen
-import org.redbyte.genom.ui.render.opengl.Genom2DGame
-import org.redbyte.genom.settings.SharedGameSettingsViewModel
+import org.redbyte.life.ui.render.compose.LifeGame
+import org.redbyte.life.ui.settings.SettingsScreen
+import org.redbyte.life.ui.render.opengl.LifeGame2D
+import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
 
 @Composable
 fun AppNavigation() {
@@ -19,10 +19,10 @@ fun AppNavigation() {
             SettingsScreen(navController, sharedViewModel)
         }
         composable("genomGame") {
-            GenomGame(sharedViewModel)
+            LifeGame(sharedViewModel)
         }
         composable("openGLGame") {
-            Genom2DGame(sharedViewModel)
+            LifeGame2D(sharedViewModel)
         }
     }
 }

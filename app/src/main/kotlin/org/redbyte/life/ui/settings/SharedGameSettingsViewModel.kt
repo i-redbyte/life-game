@@ -1,10 +1,10 @@
-package org.redbyte.genom.settings
+package org.redbyte.life.ui.settings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.redbyte.genom.common.GameBoard
-import org.redbyte.genom.common.data.GameSettings
+import org.redbyte.life.common.GameBoard
+import org.redbyte.life.common.data.GameSettings
 
 class SharedGameSettingsViewModel : ViewModel() {
     private var gameBoard: GameBoard? = null

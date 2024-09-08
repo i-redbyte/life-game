@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "genom"
+rootProject.name = "life"
 include(":app")
  

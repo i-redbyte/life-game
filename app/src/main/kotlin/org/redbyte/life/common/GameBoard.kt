@@ -1,7 +1,7 @@
-package org.redbyte.genom.common
+package org.redbyte.life.common
 
-import org.redbyte.genom.common.data.Cell
-import org.redbyte.genom.common.data.GameSettings
+import org.redbyte.life.common.data.Cell
+import org.redbyte.life.common.data.GameSettings
 
 typealias CellMatrix = Array<Array<Cell>>
 

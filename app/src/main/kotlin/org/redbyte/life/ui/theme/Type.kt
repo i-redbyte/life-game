@@ -1,4 +1,4 @@
-package org.redbyte.genom.ui.theme
+package org.redbyte.life.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

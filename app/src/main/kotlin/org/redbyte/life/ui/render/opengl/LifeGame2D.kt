@@ -1,4 +1,4 @@
-package org.redbyte.genom.ui.render.opengl
+package org.redbyte.life.ui.render.opengl
 
 import android.opengl.GLSurfaceView
 import androidx.compose.foundation.layout.Box
@@ -14,12 +14,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import org.redbyte.genom.R
-import org.redbyte.genom.settings.SharedGameSettingsViewModel
-import org.redbyte.genom.ui.theme.baseTeal
+import org.redbyte.life.R
+import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
+import org.redbyte.life.ui.theme.baseTeal
 
 @Composable
-fun Genom2DGame(viewModel: SharedGameSettingsViewModel) {
+fun LifeGame2D(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
@@ -38,7 +38,8 @@ fun Genom2DGame(viewModel: SharedGameSettingsViewModel) {
                 }
             }
         )
-        val livingCellsText = stringResource(id = R.string.living_cells_count, livingCellsCount.intValue)
+        val livingCellsText =
+            stringResource(id = R.string.living_cells_count, livingCellsCount.intValue)
         val gameTurnText = stringResource(id = R.string.game_turn, turnGame.intValue)
 
         Text(

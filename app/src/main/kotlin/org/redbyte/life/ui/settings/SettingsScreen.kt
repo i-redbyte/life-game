@@ -1,4 +1,4 @@
-package org.redbyte.genom.settings
+package org.redbyte.life.ui.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -15,16 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import org.redbyte.genom.R
-import org.redbyte.genom.common.data.GameSettings
-import org.redbyte.genom.ui.theme.*
+import org.redbyte.life.R
+import org.redbyte.life.common.data.GameSettings
+import org.redbyte.life.ui.theme.baseBlack
+import org.redbyte.life.ui.theme.baseDarkGray
+import org.redbyte.life.ui.theme.baseLightGray
+import org.redbyte.life.ui.theme.baseWhite
+import org.redbyte.life.ui.theme.greenSeaWave
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
-    val dialogState = remember { mutableStateOf(false) }
-    var hasPacifists by remember { mutableStateOf(true) }
-    var hasAggressors by remember { mutableStateOf(false) }
-    var allowMutations by remember { mutableStateOf(false) }
     var width by remember { mutableStateOf("32") }
     var height by remember { mutableStateOf("32") }
     var initialPopulation by remember { mutableStateOf("128") }
@@ -49,41 +49,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                 onValueChange = { initialPopulation = it },
                 label = stringResource(R.string.initial_population)
             )
-            Text(
-                stringResource(R.string.select_cell_types),
-                color = greenSeaWave,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            CheckboxWithText(
-                text = stringResource(R.string.title_pacifists),
-                checked = hasPacifists,
-                onCheckedChange = { checked ->
-                    if (!checked && !hasAggressors) {
-                        dialogState.value = true
-                    } else {
-                        hasPacifists = checked
-                    }
-                }
-            )
-            CheckboxWithText(
-                text = stringResource(R.string.title_aggressors),
-                checked = hasAggressors,
-                onCheckedChange = { checked ->
-                    if (!checked && !hasPacifists) {
-                        dialogState.value = true
-                    } else {
-                        hasAggressors = checked
-                    }
-                }
-            )
-            if (hasPacifists && hasAggressors) {
-                CheckboxWithText(
-                    text = stringResource(R.string.allow_mutations),
-                    checked = allowMutations,
-                    onCheckedChange = { allowMutations = it }
-                )
-            }
+
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -98,9 +64,6 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                         .clickable {
                             val gameSettings =
                                 GameSettings(
-                                    hasPacifists = hasPacifists,
-                                    hasAggressors = hasAggressors,
-                                    allowMutations = allowMutations,
                                     width = width.toInt(),
                                     height = height.toInt(),
                                     initialPopulation = initialPopulation.toInt(),
@@ -121,17 +84,6 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
         }
     }
 
-    if (dialogState.value) {
-        AlertDialog(
-            onDismissRequest = { dialogState.value = false },
-            confirmButton = {
-                Button(onClick = { dialogState.value = false }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
-            text = { Text(stringResource(R.string.cell_type_selection_warning)) }
-        )
-    }
 }
 
 @Composable

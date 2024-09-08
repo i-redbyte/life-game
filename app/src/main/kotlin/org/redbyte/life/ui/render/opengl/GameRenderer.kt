@@ -1,9 +1,9 @@
-package org.redbyte.genom.ui.render.opengl
+package org.redbyte.life.ui.render.opengl
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
-import org.redbyte.genom.common.GameBoard
+import org.redbyte.life.common.GameBoard
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
@@ -21,7 +21,6 @@ class GameRenderer(
     private var turn = 0
 
     // TODO: load from files: fragment_shader.glsl vertex_shader,.glsl
-    // Vertex shader code
     private val vertexShaderCode = """
         uniform mat4 uMVPMatrix;
         attribute vec4 vPosition;
@@ -30,7 +29,6 @@ class GameRenderer(
         }
     """.trimIndent()
 
-    // Fragment shader code
     private val fragmentShaderCode = """
         precision mediump float;
         uniform vec4 vColor;

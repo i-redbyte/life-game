@@ -1,4 +1,4 @@
-package org.redbyte.genom.ui.render.compose
+package org.redbyte.life.ui.render.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -28,17 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.redbyte.genom.R
-import org.redbyte.genom.settings.SharedGameSettingsViewModel
-import org.redbyte.genom.ui.theme.baseGreen
-import org.redbyte.genom.ui.theme.baseYellow
-import org.redbyte.genom.ui.theme.baseRed
-import org.redbyte.genom.ui.theme.blueSapphire
+import org.redbyte.life.R
+import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
+import org.redbyte.life.ui.theme.baseGreen
+import org.redbyte.life.ui.theme.baseYellow
+import org.redbyte.life.ui.theme.baseRed
+import org.redbyte.life.ui.theme.blueSapphire
 
 private const val DELAY_UPDATE_WORLD = 125L
 
 @Composable
-fun GenomGame(viewModel: SharedGameSettingsViewModel) {
+fun LifeGame(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }
@@ -93,10 +93,6 @@ fun GenomGame(viewModel: SharedGameSettingsViewModel) {
                         .padding(16.dp)
                 ) {
                     Text(stringResource(R.string.turn, turnNumber.intValue))
-                    Text(stringResource(R.string.aggressors, aggressiveCount.intValue))
-                    Text(stringResource(R.string.cannibals, cannibalCount.intValue))
-                    Text(stringResource(R.string.pacifists, peacefulCount.intValue))
-                    Text(stringResource(R.string.psychos, psychoCount.intValue))
                     Button(onClick = { isPaused = !isPaused }) {
                         Text(
                             if (isPaused) stringResource(R.string.continue_game)

@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "org.redbyte.genom"
+    namespace = "org.redbyte.life"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "org.redbyte.genom"
+        applicationId = "org.redbyte.life"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

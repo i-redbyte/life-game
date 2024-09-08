@@ -1,24 +1,15 @@
 <resources>
-    <string name="app_name">genom</string>
+    <string name="app_name">Life Game</string>
     <string name="living_cells_count">Количество живых клеток: %1$d</string>
     <string name="game_turn">Ход: %1$d</string>
     <string name="turn">Ход: %1$d</string>
-    <string name="aggressors">Агрессоры: %1$d</string>
-    <string name="cannibals">Каннибалы: %1$d</string>
-    <string name="pacifists">Пацифисты: %1$d</string>
-    <string name="psychos">Психи: %1$d</string>
     <string name="continue_game">Продолжить</string>
     <string name="pause">Пауза</string>
     <string name="game_settings">Настройки игры</string>
     <string name="field_width">Ширина поля</string>
     <string name="field_height">Высота поля</string>
     <string name="initial_population">Начальное население</string>
-    <string name="select_cell_types">Выберите типы клеток</string>
-    <string name="title_pacifists">Пацифисты</string>
-    <string name="title_aggressors">Агрессоры</string>
-    <string name="allow_mutations">Разрешить мутации</string>
     <string name="ok">ОК</string>
-    <string name="cell_type_selection_warning">Хотя бы один вид клеток должен быть выбран.</string>
     <string name="compose_game">Compose Game</string>
     <string name="opengl_game">OpenGL Game</string>
 </resources>
