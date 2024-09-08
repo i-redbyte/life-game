@@ -4,14 +4,24 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -19,6 +29,7 @@ import org.redbyte.life.R
 import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.ui.theme.baseBlack
 import org.redbyte.life.ui.theme.baseDarkGray
+import org.redbyte.life.ui.theme.baseGreen
 import org.redbyte.life.ui.theme.baseLightGray
 import org.redbyte.life.ui.theme.baseWhite
 import org.redbyte.life.ui.theme.greenSeaWave
@@ -103,19 +114,52 @@ fun CheckboxWithText(text: String, checked: Boolean, onCheckedChange: (Boolean) 
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: String) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = greenSeaWave) },
+        label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = baseWhite,
-            backgroundColor = baseBlack,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = baseWhite,
+            unfocusedTextColor = baseWhite,
+            disabledTextColor = baseWhite.copy(alpha = 0.3f),
+            errorTextColor = Color.Red,
+
+            focusedContainerColor = baseBlack,
+            unfocusedContainerColor = baseBlack,
+            disabledContainerColor = baseBlack.copy(alpha = 0.3f),
+            errorContainerColor = Color.Red.copy(alpha = 0.1f),
+
+            cursorColor = greenSeaWave,
+            errorCursorColor = Color.Red,
+
+            selectionColors = TextSelectionColors(
+                handleColor = greenSeaWave,
+                backgroundColor = baseGreen.copy(alpha = 0.3f)
+            ),
+
             focusedIndicatorColor = greenSeaWave,
             unfocusedIndicatorColor = baseLightGray,
+            disabledIndicatorColor = baseLightGray.copy(alpha = 0.3f),
+            errorIndicatorColor = Color.Red,
+
+            focusedLeadingIconColor = Color.Transparent,
+            unfocusedLeadingIconColor = Color.Transparent,
+            disabledLeadingIconColor = Color.Transparent,
+            errorLeadingIconColor = Color.Transparent,
+
+            focusedTrailingIconColor = Color.Transparent,
+            unfocusedTrailingIconColor = Color.Transparent,
+            disabledTrailingIconColor = Color.Transparent,
+            errorTrailingIconColor = Color.Transparent,
+
+            focusedLabelColor = greenSeaWave,
+            unfocusedLabelColor = baseLightGray
         )
     )
+
 }
