@@ -31,14 +31,12 @@ import kotlinx.coroutines.launch
 import org.redbyte.life.R
 import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
 import org.redbyte.life.ui.theme.baseGreen
-import org.redbyte.life.ui.theme.baseYellow
-import org.redbyte.life.ui.theme.baseRed
-import org.redbyte.life.ui.theme.blueSapphire
 
 private const val DELAY_UPDATE_WORLD = 125L
 
 @Composable
 fun LifeGame(viewModel: SharedGameSettingsViewModel) {
+    viewModel.resetGameBoard()
     val gameBoard = viewModel.getGameBoard()
     val coroutineScope = rememberCoroutineScope()
     var showTopSheet by remember { mutableStateOf(false) }

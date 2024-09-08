@@ -31,12 +31,8 @@ class GameBoard(val settings: GameSettings) {
         for (i in matrix.indices) {
             for (j in matrix[0].indices) {
                 val neighbors = countNeighbors(i, j)
-                val cell = matrix[i][j]
                 newMatrix[i][j].isAlive =
                     if (matrix[i][j].isAlive) neighbors in 2..3 else neighbors == 3
-                if (newMatrix[i][j].isAlive) {
-                    newMatrix[i][j].turnsLived = cell.turnsLived
-                }
             }
         }
         for (i in matrix.indices) {

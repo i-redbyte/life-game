@@ -5,10 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.*
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -16,19 +12,16 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.redbyte.life.R
 import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.ui.theme.baseBlack
-import org.redbyte.life.ui.theme.baseDarkGray
 import org.redbyte.life.ui.theme.baseGreen
 import org.redbyte.life.ui.theme.baseLightGray
 import org.redbyte.life.ui.theme.baseWhite
@@ -47,74 +40,101 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                stringResource(R.string.game_settings),
-                color = greenSeaWave,
-                fontWeight = FontWeight.Bold
-            )
+            HeaderTitle(text = stringResource(R.string.game_settings))
             Spacer(modifier = Modifier.height(16.dp))
-            NumberInputField(value = width, onValueChange = { width = it }, label = stringResource(R.string.field_width))
-            NumberInputField(value = height, onValueChange = { height = it }, label = stringResource(R.string.field_height))
-            NumberInputField(
-                value = initialPopulation,
-                onValueChange = { initialPopulation = it },
-                label = stringResource(R.string.initial_population)
+
+            GameSettingsInputFields(
+                width = width,
+                height = height,
+                initialPopulation = initialPopulation,
+                onWidthChange = { width = it },
+                onHeightChange = { height = it },
+                onInitialPopulationChange = { initialPopulation = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard),
-                    contentDescription = stringResource(R.string.compose_game),
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .clickable {
-                            val gameSettings =
-                                GameSettings(
-                                    width = width.toInt(),
-                                    height = height.toInt(),
-                                    initialPopulation = initialPopulation.toInt(),
-                                )
-                            viewModel.setupSettings(gameSettings)
-                            navController.navigate("genomGame")
-                        }
-                )
-                Image(
-                    bitmap = ImageBitmap.imageResource(id = R.drawable.ic_biohazard2d),
-                    contentDescription = stringResource(R.string.opengl_game),
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .clickable { navController.navigate("openGLGame") }
-                )
-            }
+
+            GameSelectionButtons(
+                width = width,
+                height = height,
+                initialPopulation = initialPopulation,
+                navController = navController,
+                viewModel = viewModel
+            )
         }
     }
-
 }
 
 @Composable
-fun CheckboxWithText(text: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun HeaderTitle(text: String) {
+    Text(
+        text = text,
+        color = greenSeaWave,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun GameSettingsInputFields(
+    width: String,
+    height: String,
+    initialPopulation: String,
+    onWidthChange: (String) -> Unit,
+    onHeightChange: (String) -> Unit,
+    onInitialPopulationChange: (String) -> Unit
+) {
+    NumberInputField(value = width, onValueChange = onWidthChange, label = stringResource(R.string.field_width))
+    NumberInputField(value = height, onValueChange = onHeightChange, label = stringResource(R.string.field_height))
+    NumberInputField(value = initialPopulation, onValueChange = onInitialPopulationChange, label = stringResource(R.string.initial_population))
+}
+
+@Composable
+fun GameSelectionButtons(
+    width: String,
+    height: String,
+    initialPopulation: String,
+    navController: NavHostController,
+    viewModel: SharedGameSettingsViewModel
+) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = CheckboxDefaults.colors(
-                checkedColor = greenSeaWave,
-                uncheckedColor = baseDarkGray
-            )
+        GameButton(
+            imageId = R.drawable.ic_biohazard,
+            contentDescription = stringResource(R.string.compose_game),
+            onClick = {
+                viewModel.setupSettings(
+                    GameSettings(
+                        width = width.toInt(),
+                        height = height.toInt(),
+                        initialPopulation = initialPopulation.toInt()
+                    )
+                )
+                navController.navigate("genomGame")
+            },
+            modifier = Modifier.weight(1f)
         )
-        Text(text, color = baseWhite)
+        GameButton(
+            imageId = R.drawable.ic_biohazard2d,
+            contentDescription = stringResource(R.string.opengl_game),
+            onClick = { navController.navigate("openGLGame") },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GameButton(imageId: Int, contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Image(
+        bitmap = ImageBitmap.imageResource(id = imageId),
+        contentDescription = contentDescription,
+        modifier = modifier
+            .aspectRatio(1f)
+            .clickable { onClick() }
+    )
+}
+
 @Composable
 fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: String) {
     TextField(
@@ -123,43 +143,24 @@ fun NumberInputField(value: String, onValueChange: (String) -> Unit, label: Stri
         label = { Text(label) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = baseWhite,
-            unfocusedTextColor = baseWhite,
-            disabledTextColor = baseWhite.copy(alpha = 0.3f),
-            errorTextColor = Color.Red,
-
-            focusedContainerColor = baseBlack,
-            unfocusedContainerColor = baseBlack,
-            disabledContainerColor = baseBlack.copy(alpha = 0.3f),
-            errorContainerColor = Color.Red.copy(alpha = 0.1f),
-
-            cursorColor = greenSeaWave,
-            errorCursorColor = Color.Red,
-
-            selectionColors = TextSelectionColors(
-                handleColor = greenSeaWave,
-                backgroundColor = baseGreen.copy(alpha = 0.3f)
-            ),
-
-            focusedIndicatorColor = greenSeaWave,
-            unfocusedIndicatorColor = baseLightGray,
-            disabledIndicatorColor = baseLightGray.copy(alpha = 0.3f),
-            errorIndicatorColor = Color.Red,
-
-            focusedLeadingIconColor = Color.Transparent,
-            unfocusedLeadingIconColor = Color.Transparent,
-            disabledLeadingIconColor = Color.Transparent,
-            errorLeadingIconColor = Color.Transparent,
-
-            focusedTrailingIconColor = Color.Transparent,
-            unfocusedTrailingIconColor = Color.Transparent,
-            disabledTrailingIconColor = Color.Transparent,
-            errorTrailingIconColor = Color.Transparent,
-
-            focusedLabelColor = greenSeaWave,
-            unfocusedLabelColor = baseLightGray
-        )
+        colors = numberInputFieldColors(),
+        modifier = Modifier.fillMaxWidth()
     )
-
 }
+
+@Composable
+fun numberInputFieldColors() = TextFieldDefaults.colors(
+    focusedTextColor = baseWhite,
+    unfocusedTextColor = baseWhite,
+    cursorColor = greenSeaWave,
+    focusedContainerColor = baseBlack,
+    unfocusedContainerColor = baseBlack,
+    focusedIndicatorColor = greenSeaWave,
+    unfocusedIndicatorColor = baseLightGray,
+    selectionColors = TextSelectionColors(
+        handleColor = greenSeaWave,
+        backgroundColor = baseGreen.copy(alpha = 0.3f)
+    ),
+    focusedLabelColor = greenSeaWave,
+    unfocusedLabelColor = baseLightGray
+)
