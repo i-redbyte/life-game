@@ -8,9 +8,9 @@ typealias CellMatrix = Array<Array<Cell>>
 class GameBoard(val settings: GameSettings) {
 
     val matrix: CellMatrix =
-        Array(settings.width) { Array(settings.height) { Cell(false, mutableSetOf(6)) } }
+        Array(settings.width) { Array(settings.height) { Cell(false) } }
     private val newMatrix =
-        Array(settings.width) { Array(settings.height) { Cell(false, mutableSetOf(6)) } }
+        Array(settings.width) { Array(settings.height) { Cell(false) } }
 
     init {
         var populated = 0
@@ -36,13 +36,12 @@ class GameBoard(val settings: GameSettings) {
                     if (matrix[i][j].isAlive) neighbors in 2..3 else neighbors == 3
                 if (newMatrix[i][j].isAlive) {
                     newMatrix[i][j].turnsLived = cell.turnsLived
-                    newMatrix[i][j].genes = cell.genes
                 }
             }
         }
         for (i in matrix.indices) {
             for (j in matrix[0].indices) {
-                matrix[i][j] = Cell(newMatrix[i][j].isAlive, newMatrix[i][j].genes.toMutableSet())
+                matrix[i][j] = Cell(newMatrix[i][j].isAlive)
             }
         }
     }

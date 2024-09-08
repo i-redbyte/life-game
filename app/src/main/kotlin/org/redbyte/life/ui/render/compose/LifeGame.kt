@@ -47,23 +47,16 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
         val cellSize = screenWidth / gameBoard.settings.width
-        val aggressiveCount = remember { mutableIntStateOf(0) }
-        val peacefulCount = remember { mutableIntStateOf(0) }
-        val cannibalCount = remember { mutableIntStateOf(0) }
-        val psychoCount = remember { mutableIntStateOf(0) }
+        val cellCount = remember { mutableIntStateOf(0) }
         val turnNumber = remember { mutableIntStateOf(0) }
         var matrix by remember { mutableStateOf(gameBoard.matrix) }
 
         LaunchedEffect(key1 = isPaused, key2 = matrix) {
             while (!isPaused) {
-                psychoCount.intValue =
-                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(4) } }
-                peacefulCount.intValue =
-                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(6) } }
-                cannibalCount.intValue =
-                    matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(7) } }
-                aggressiveCount.intValue =
-                    gameBoard.matrix.sumOf { row -> row.count { it.isAlive && it.genes.contains(8) } }
+
+                cellCount.intValue =
+                    matrix.sumOf { row -> row.count { it.isAlive } }
+                gameBoard.matrix.sumOf { row -> row.count { it.isAlive } }
                 turnNumber.intValue++
                 delay(DELAY_UPDATE_WORLD)
                 gameBoard.update()
@@ -106,10 +99,7 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
                 matrix.forEachIndexed { i, row ->
                     row.forEachIndexed { j, cell ->
                         val color = when {
-                            cell.isAlive && cell.genes.contains(4) -> baseYellow
-                            cell.isAlive && cell.genes.contains(6) -> baseGreen
-                            cell.isAlive && cell.genes.contains(7) -> blueSapphire
-                            cell.isAlive && cell.genes.contains(8) -> baseRed
+                            cell.isAlive -> baseGreen
                             else -> Color.White
                         }
                         drawCircle(
