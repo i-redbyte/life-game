@@ -18,3 +18,8 @@ data object HighLifeRule : Rule {
     override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
         if (isAlive) neighbors in 2..3 else neighbors == 3 || neighbors == 6
 }
+
+data object MorleyRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        if (isAlive) neighbors in listOf(2, 4, 5) else neighbors in listOf(3, 6)
+}
