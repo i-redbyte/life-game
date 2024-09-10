@@ -28,3 +28,9 @@ data object TwoByTwoRule : Rule {
     override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
         if (isAlive) neighbors in listOf(1, 2, 5) else neighbors in listOf(3, 6)
 }
+
+data object DiamoebaRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        if (isAlive) neighbors in 5..8 else neighbors in listOf(3, 5, 6, 7)
+}
+
