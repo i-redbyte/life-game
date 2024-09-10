@@ -18,7 +18,7 @@ fun AppNavigation() {
         composable("settingsGame") {
             SettingsScreen(navController, sharedViewModel)
         }
-        composable("genomGame") {
+        composable("lifeGame") {
             LifeGame(sharedViewModel)
         }
         composable("openGLGame") {

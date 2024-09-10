@@ -16,7 +16,7 @@ class GameRenderer(
     private var squareShaderProgram: Int = 0
     private val projectionMatrix = FloatArray(16)
     private var lastUpdateTime = System.nanoTime()
-    private val updateInterval = 128_000_000
+    private val updateInterval = 128_000_000_00
     private var turn = 0
 
     // TODO: load from files: fragment_shader.glsl vertex_shader,.glsl

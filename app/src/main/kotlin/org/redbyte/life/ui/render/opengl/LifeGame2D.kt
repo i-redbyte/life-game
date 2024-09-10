@@ -20,7 +20,6 @@ import org.redbyte.life.ui.theme.baseTeal
 
 @Composable
 fun LifeGame2D(viewModel: SharedGameSettingsViewModel) {
-    viewModel.resetGameBoard()
     val gameBoard = viewModel.getGameBoard()
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }

@@ -1,7 +1,6 @@
 package org.redbyte.life.common
 
 import org.redbyte.life.common.data.GameSettings
-import kotlin.random.Random
 
 typealias CellMatrix = List<Long>
 
@@ -15,11 +14,15 @@ class GameBoard(val settings: GameSettings) {
     }
 
     private fun populateInitialCells() {
-        matrix = List(matrix.size) { y ->
-            val row = (0 until settings.width).map { Random.nextBoolean() }
-                .take(settings.initialPopulation)
-            row.fold(0L) { acc, isAlive ->
-                acc shl 1 or (if (isAlive) 1L else 0L)
+        val initialCells = (0 until settings.height).flatMap { y ->
+            (0 until settings.width).map { x -> x to y }
+        }
+            .shuffled()
+            .take(settings.initialPopulation)
+            .toSet()
+        matrix = List(settings.height) { y ->
+            (0 until settings.width).fold(0L) { row, x ->
+                if (x to y in initialCells) row or (1L shl x) else row
             }
         }
     }

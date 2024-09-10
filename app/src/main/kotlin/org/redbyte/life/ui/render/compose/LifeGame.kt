@@ -32,7 +32,7 @@ import org.redbyte.life.R
 import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
 import org.redbyte.life.ui.theme.baseGreen
 
-private const val DELAY_UPDATE_WORLD = 125L
+private const val DELAY_UPDATE_WORLD = 150L
 
 @Composable
 fun LifeGame(viewModel: SharedGameSettingsViewModel) {

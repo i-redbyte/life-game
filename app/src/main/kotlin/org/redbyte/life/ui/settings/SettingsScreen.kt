@@ -31,7 +31,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
     var width by remember { mutableStateOf("32") }
     var height by remember { mutableStateOf("32") }
     var initialPopulation by remember { mutableStateOf("128") }
-    var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) } // Выбранное правило
+    var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) }
 
     Surface(color = baseBlack) {
         Column(
@@ -54,7 +54,9 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RuleSelectionDropdown(selectedRule = selectedRule, onRuleSelected = { selectedRule = it })
+            RuleSelectionDropdown(
+                selectedRule = selectedRule,
+                onRuleSelected = { selectedRule = it })
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -62,7 +64,7 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                 width = width,
                 height = height,
                 initialPopulation = initialPopulation,
-                selectedRule = selectedRule,  // Передаем выбранное правило
+                selectedRule = selectedRule,
                 navController = navController,
                 viewModel = viewModel
             )
@@ -88,9 +90,21 @@ fun GameSettingsInputFields(
     onHeightChange: (String) -> Unit,
     onInitialPopulationChange: (String) -> Unit
 ) {
-    NumberInputField(value = width, onValueChange = onWidthChange, label = stringResource(R.string.field_width))
-    NumberInputField(value = height, onValueChange = onHeightChange, label = stringResource(R.string.field_height))
-    NumberInputField(value = initialPopulation, onValueChange = onInitialPopulationChange, label = stringResource(R.string.initial_population))
+    NumberInputField(
+        value = width,
+        onValueChange = onWidthChange,
+        label = stringResource(R.string.field_width)
+    )
+    NumberInputField(
+        value = height,
+        onValueChange = onHeightChange,
+        label = stringResource(R.string.field_height)
+    )
+    NumberInputField(
+        value = initialPopulation,
+        onValueChange = onInitialPopulationChange,
+        label = stringResource(R.string.initial_population)
+    )
 }
 
 @Composable
@@ -171,24 +185,41 @@ fun GameSelectionButtons(
                         width = width.toInt(),
                         height = height.toInt(),
                         initialPopulation = initialPopulation.toInt(),
-                        rule = selectedRule // Передаем выбранное правило
+                        rule = selectedRule
                     )
                 )
-                navController.navigate("genomGame")
+                viewModel.resetGameBoard()
+                navController.navigate("lifeGame")
             },
             modifier = Modifier.weight(1f)
         )
         GameButton(
             imageId = R.drawable.ic_biohazard2d,
             contentDescription = stringResource(R.string.opengl_game),
-            onClick = { navController.navigate("openGLGame") },
+            onClick = {
+                viewModel.setupSettings(
+                    GameSettings(
+                        width = width.toInt(),
+                        height = height.toInt(),
+                        initialPopulation = initialPopulation.toInt(),
+                        rule = selectedRule
+                    )
+                )
+                viewModel.resetGameBoard()
+                navController.navigate("openGLGame")
+            },
             modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-fun GameButton(imageId: Int, contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun GameButton(
+    imageId: Int,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Image(
         bitmap = ImageBitmap.imageResource(id = imageId),
         contentDescription = contentDescription,
