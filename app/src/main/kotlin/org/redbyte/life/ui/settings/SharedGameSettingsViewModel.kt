@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import org.redbyte.life.common.domain.ClassicRule
 import org.redbyte.life.common.GameBoard
 import org.redbyte.life.common.data.GameSettings
+import org.redbyte.life.common.domain.DayAndNightRule
 
 class SharedGameSettingsViewModel : ViewModel() {
     private var _gameBoard: GameBoard? = null
@@ -20,14 +21,14 @@ class SharedGameSettingsViewModel : ViewModel() {
     fun resetGameBoard(newSettings: GameSettings? = null) {
         val gameSettings =
             newSettings ?: settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, ClassicRule)
+        _gameBoard = GameBoard(gameSettings, DayAndNightRule)
     }
 
     fun getGameBoard(): GameBoard = _gameBoard ?: resetGameBoardAndGet()
 
     private fun resetGameBoardAndGet(): GameBoard {
         val gameSettings = settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, ClassicRule)
+        _gameBoard = GameBoard(gameSettings, DayAndNightRule)
         return _gameBoard as GameBoard
     }
 }
