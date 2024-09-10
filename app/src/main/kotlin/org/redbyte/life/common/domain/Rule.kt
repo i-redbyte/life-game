@@ -34,3 +34,8 @@ data object DiamoebaRule : Rule {
         if (isAlive) neighbors in 5..8 else neighbors in listOf(3, 5, 6, 7)
 }
 
+data object LifeWithoutDeathRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        isAlive || neighbors == 3
+}
+
