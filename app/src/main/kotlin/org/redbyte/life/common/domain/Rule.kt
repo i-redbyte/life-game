@@ -23,3 +23,8 @@ data object MorleyRule : Rule {
     override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
         if (isAlive) neighbors in listOf(2, 4, 5) else neighbors in listOf(3, 6)
 }
+
+data object TwoByTwoRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        if (isAlive) neighbors in listOf(1, 2, 5) else neighbors in listOf(3, 6)
+}

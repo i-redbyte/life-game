@@ -9,6 +9,7 @@ import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.common.domain.DayAndNightRule
 import org.redbyte.life.common.domain.HighLifeRule
 import org.redbyte.life.common.domain.MorleyRule
+import org.redbyte.life.common.domain.TwoByTwoRule
 
 class SharedGameSettingsViewModel : ViewModel() {
     private var _gameBoard: GameBoard? = null
@@ -23,14 +24,14 @@ class SharedGameSettingsViewModel : ViewModel() {
     fun resetGameBoard(newSettings: GameSettings? = null) {
         val gameSettings =
             newSettings ?: settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, MorleyRule)
+        _gameBoard = GameBoard(gameSettings, TwoByTwoRule)
     }
 
     fun getGameBoard(): GameBoard = _gameBoard ?: resetGameBoardAndGet()
 
     private fun resetGameBoardAndGet(): GameBoard {
         val gameSettings = settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, MorleyRule)
+        _gameBoard = GameBoard(gameSettings, TwoByTwoRule)
         return _gameBoard as GameBoard
     }
 }
