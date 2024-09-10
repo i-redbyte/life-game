@@ -1,10 +1,10 @@
-package org.redbyte.life.common
+package org.redbyte.life.common.domain
 
-interface Rule {
+sealed interface Rule {
     fun apply(isAlive: Boolean, neighbors: Int): Boolean
 }
 
-class ClassicRule : Rule {
+data object ClassicRule : Rule {
     override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
         if (isAlive) neighbors in 2..3 else neighbors == 3
 }

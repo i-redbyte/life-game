@@ -1,6 +1,7 @@
 package org.redbyte.life.common
 
 import org.redbyte.life.common.data.GameSettings
+import org.redbyte.life.common.domain.Rule
 import kotlin.random.Random
 
 typealias CellMatrix = List<Long>
