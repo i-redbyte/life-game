@@ -43,3 +43,9 @@ data object ReplicatorRule : Rule {
     override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
         neighbors % 2 == 1
 }
+
+data object SeedsRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        !isAlive && neighbors == 2
+}
+
