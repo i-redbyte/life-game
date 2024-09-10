@@ -1,14 +1,14 @@
 package org.redbyte.life.common
 
 import org.redbyte.life.common.data.GameSettings
-import org.redbyte.life.common.domain.Rule
 import kotlin.random.Random
 
 typealias CellMatrix = List<Long>
 
-class GameBoard(val settings: GameSettings, val rule: Rule) {
+class GameBoard(val settings: GameSettings) {
 
     var matrix: CellMatrix = List(settings.height) { 0L }
+    private val rule = settings.rule
 
     init {
         populateInitialCells()

@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -21,17 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.redbyte.life.R
 import org.redbyte.life.common.data.GameSettings
-import org.redbyte.life.ui.theme.baseBlack
-import org.redbyte.life.ui.theme.baseGreen
-import org.redbyte.life.ui.theme.baseLightGray
-import org.redbyte.life.ui.theme.baseWhite
-import org.redbyte.life.ui.theme.greenSeaWave
+import org.redbyte.life.common.domain.*
+import org.redbyte.life.ui.theme.*
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
     var width by remember { mutableStateOf("32") }
     var height by remember { mutableStateOf("32") }
     var initialPopulation by remember { mutableStateOf("128") }
+    var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) } // Выбранное правило
 
     Surface(color = baseBlack) {
         Column(
@@ -54,10 +54,15 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            RuleSelectionDropdown(selectedRule = selectedRule, onRuleSelected = { selectedRule = it })
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             GameSelectionButtons(
                 width = width,
                 height = height,
                 initialPopulation = initialPopulation,
+                selectedRule = selectedRule,  // Передаем выбранное правило
                 navController = navController,
                 viewModel = viewModel
             )
@@ -89,10 +94,67 @@ fun GameSettingsInputFields(
 }
 
 @Composable
+fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val rules = listOf(
+        ClassicRule,
+        HighLifeRule,
+        DayAndNightRule,
+        MorleyRule,
+        TwoByTwoRule,
+        DiamoebaRule,
+        LifeWithoutDeathRule,
+        ReplicatorRule,
+        SeedsRule
+    )
+    val ruleNames = listOf(
+        stringResource(R.string.classic_rule),
+        stringResource(R.string.highlife_rule),
+        stringResource(R.string.day_and_night_rule),
+        stringResource(R.string.morley_rule),
+        stringResource(R.string.two_by_two_rule),
+        stringResource(R.string.diamoeba_rule),
+        stringResource(R.string.life_without_death_rule),
+        stringResource(R.string.replicator_rule),
+        stringResource(R.string.seeds_rule)
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = ruleNames[rules.indexOf(selectedRule)],
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true }
+                .padding(16.dp),
+            fontWeight = FontWeight.Bold,
+            color = baseWhite
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            rules.forEachIndexed { index, rule ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = ruleNames[index])
+                    },
+                    onClick = {
+                        onRuleSelected(rule)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun GameSelectionButtons(
     width: String,
     height: String,
     initialPopulation: String,
+    selectedRule: Rule,
     navController: NavHostController,
     viewModel: SharedGameSettingsViewModel
 ) {
@@ -108,7 +170,8 @@ fun GameSelectionButtons(
                     GameSettings(
                         width = width.toInt(),
                         height = height.toInt(),
-                        initialPopulation = initialPopulation.toInt()
+                        initialPopulation = initialPopulation.toInt(),
+                        rule = selectedRule // Передаем выбранное правило
                     )
                 )
                 navController.navigate("genomGame")

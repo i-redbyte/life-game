@@ -12,4 +12,14 @@
     <string name="ok">ОК</string>
     <string name="compose_game">Compose Game</string>
     <string name="opengl_game">OpenGL Game</string>
+    <string name="classic_rule">Классическое правило</string>
+    <string name="highlife_rule">Правило Высокой Жизни</string>
+    <string name="day_and_night_rule">Правило День и Ночь</string>
+    <string name="morley_rule">Правило Морли</string>
+    <string name="two_by_two_rule">Правило 2x2</string>
+    <string name="diamoeba_rule">Правило Диамеба</string>
+    <string name="life_without_death_rule">Жизнь без смерти</string>
+    <string name="replicator_rule">Правило Репликатор</string>
+    <string name="seeds_rule">Правило Семена</string>
+
 </resources>

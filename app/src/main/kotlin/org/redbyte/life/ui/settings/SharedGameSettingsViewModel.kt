@@ -1,42 +1,37 @@
 package org.redbyte.life.ui.settings
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.redbyte.life.common.domain.ClassicRule
 import org.redbyte.life.common.GameBoard
 import org.redbyte.life.common.data.GameSettings
-import org.redbyte.life.common.domain.DayAndNightRule
-import org.redbyte.life.common.domain.DiamoebaRule
-import org.redbyte.life.common.domain.HighLifeRule
-import org.redbyte.life.common.domain.LifeWithoutDeathRule
-import org.redbyte.life.common.domain.MorleyRule
-import org.redbyte.life.common.domain.ReplicatorRule
-import org.redbyte.life.common.domain.SeedsRule
-import org.redbyte.life.common.domain.TwoByTwoRule
 
 class SharedGameSettingsViewModel : ViewModel() {
-    private var _gameBoard: GameBoard? = null
-    private val _settings = MutableLiveData(GameSettings())
-    private val settings: LiveData<GameSettings> = _settings
+    private lateinit var _settings: GameSettings
+    private val _gameBoard: MutableLiveData<GameBoard> = MutableLiveData()
 
     fun setupSettings(newSettings: GameSettings) {
-        _settings.value = newSettings
-        resetGameBoard(newSettings)
+        _settings = newSettings
+        resetGameBoard()
     }
 
-    fun resetGameBoard(newSettings: GameSettings? = null) {
-        val gameSettings =
-            newSettings ?: settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, SeedsRule)
+    fun resetGameBoard() {
+        if (!::_settings.isInitialized) {
+            throw RuntimeException("Game settings must be initialized before resetting the game board")
+        }
+        _gameBoard.value = GameBoard(_settings)
     }
 
-    fun getGameBoard(): GameBoard = _gameBoard ?: resetGameBoardAndGet()
+    fun getGameBoard(): GameBoard {
+        if (!::_settings.isInitialized) {
+            throw RuntimeException("Game settings must be initialized")
+        }
+        return _gameBoard.value ?: resetGameBoardAndGet()
+    }
 
     private fun resetGameBoardAndGet(): GameBoard {
-        val gameSettings = settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings, SeedsRule)
-        return _gameBoard as GameBoard
+        resetGameBoard()
+        return _gameBoard.value as GameBoard
     }
 }
+
 
