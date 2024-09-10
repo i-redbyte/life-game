@@ -1,72 +1,75 @@
 package org.redbyte.life.common
 
-import org.redbyte.life.common.data.Cell
 import org.redbyte.life.common.data.GameSettings
+import kotlin.random.Random
 
-typealias CellMatrix = Array<Array<Cell>>
+typealias CellMatrix = List<Long>
 
-class GameBoard(val settings: GameSettings) {
+class GameBoard(val settings: GameSettings, val rule: Rule) {
 
-    val matrix: CellMatrix =
-        Array(settings.width) { Array(settings.height) { Cell(false) } }
-    private val newMatrix =
-        Array(settings.width) { Array(settings.height) { Cell(false) } }
+    var matrix: CellMatrix = List(settings.height) { 0L }
 
     init {
-        var populated = 0
-        val maxCount = matrix.size * matrix[0].size
-        val pCount =
-            if (settings.initialPopulation > maxCount) maxCount / 10 else settings.initialPopulation
-        while (populated < pCount) {
-            val x = matrix.indices.random()
-            val y = matrix[0].indices.random()
-            if (!matrix[x][y].isAlive) {
-                matrix[x][y].isAlive = true
-                populated++
+        populateInitialCells()
+    }
+
+    private fun populateInitialCells() {
+        matrix = List(matrix.size) { y ->
+            val row = (0 until settings.width).map { Random.nextBoolean() }
+                .take(settings.initialPopulation)
+            row.fold(0L) { acc, isAlive ->
+                acc shl 1 or (if (isAlive) 1L else 0L)
             }
         }
     }
 
-    fun update() {
-        for (i in matrix.indices) {
-            for (j in matrix[0].indices) {
-                val neighbors = countNeighbors(i, j)
-                newMatrix[i][j].isAlive =
-                    if (matrix[i][j].isAlive) neighbors in 2..3 else neighbors == 3
+    fun update(): GameBoard {
+        matrix = matrix.mapIndexed { y, row ->
+            row.mapBitsIndexed { x, isAlive ->
+                val neighbors = countNeighbors(x, y)
+                rule.apply(isAlive, neighbors)
             }
         }
-        for (i in matrix.indices) {
-            for (j in matrix[0].indices) {
-                matrix[i][j] = Cell(newMatrix[i][j].isAlive)
-            }
-        }
+        return this
     }
 
-    fun countLivingCells() = matrix.flatten().count { it.isAlive }
+    fun countLivingCells(): Int =
+        matrix.sumOf { row -> row.countBits() }
 
     private fun countNeighbors(x: Int, y: Int): Int {
-        val directions = arrayOf(
-            Pair(-1, -1),
-            Pair(-1, 0),
-            Pair(-1, 1),
-            Pair(0, -1),
-            Pair(0, 1),
-            Pair(1, -1),
-            Pair(1, 0),
-            Pair(1, 1)
+        val directions = listOf(
+            Pair(-1, -1), Pair(-1, 0), Pair(-1, 1),
+            Pair(0, -1), Pair(0, 1),
+            Pair(1, -1), Pair(1, 0), Pair(1, 1)
         )
-        var neighborCount = 0
-        for ((dx, dy) in directions) {
-            val neighborX = x + dx
-            val neighborY = y + dy
-            if (neighborX in 0 until settings.width && neighborY in 0 until settings.height) {
-                if (matrix[neighborX][neighborY].isAlive) {
-                    neighborCount++
-                }
-            }
 
-        }
-        return neighborCount
+        return directions.mapNotNull { (dx, dy) ->
+            val nx = x + dx
+            val ny = y + dy
+            if (nx in 0 until settings.width && ny in 0 until settings.height)
+                getCellAlive(nx, ny)
+            else
+                null
+        }.count { it }
     }
+
+    private fun getCellAlive(x: Int, y: Int): Boolean =
+        (matrix[y] shr x) and 1L == 1L
+
+    private fun Long.setBitAlive(x: Int, isAlive: Boolean): Long =
+        if (isAlive) this or (1L shl x)
+        else this and (1L shl x).inv()
+
+    private fun Long.mapBitsIndexed(action: (Int, Boolean) -> Boolean): Long {
+        var result = 0L
+        for (i in 0 until Long.SIZE_BITS) {
+            val isAlive = (this shr i) and 1L == 1L
+            result = result.setBitAlive(i, action(i, isAlive))
+        }
+        return result
+    }
+
+    private fun Long.countBits(): Int =
+        this.toString(2).count { it == '1' }
 
 }

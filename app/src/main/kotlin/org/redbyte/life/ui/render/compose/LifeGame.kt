@@ -36,6 +36,8 @@ private const val DELAY_UPDATE_WORLD = 125L
 
 @Composable
 fun LifeGame(viewModel: SharedGameSettingsViewModel) {
+    fun Long.countBits(): Int =
+        this.toString(2).count { it == '1' }
     viewModel.resetGameBoard()
     val gameBoard = viewModel.getGameBoard()
     val coroutineScope = rememberCoroutineScope()
@@ -49,30 +51,31 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
         val turnNumber = remember { mutableIntStateOf(0) }
         var matrix by remember { mutableStateOf(gameBoard.matrix) }
 
-        LaunchedEffect(key1 = isPaused, key2 = matrix) {
-            while (!isPaused) {
-
-                cellCount.intValue =
-                    matrix.sumOf { row -> row.count { it.isAlive } }
-                gameBoard.matrix.sumOf { row -> row.count { it.isAlive } }
-                turnNumber.intValue++
-                delay(DELAY_UPDATE_WORLD)
-                gameBoard.update()
-                matrix = gameBoard.matrix.clone()
+        LaunchedEffect(isPaused) {
+            if (!isPaused) {
+                while (true) {
+                    delay(DELAY_UPDATE_WORLD)
+                    val updatedBoard = gameBoard.update()
+                    matrix = updatedBoard.matrix
+                    cellCount.intValue = updatedBoard.matrix.sumOf { row -> row.countBits() }
+                    turnNumber.intValue++
+                }
             }
         }
 
-        Column(modifier = Modifier.pointerInput(Unit) {
-            detectVerticalDragGestures { _, dragAmount ->
-                coroutineScope.launch {
-                    if (dragAmount > 0 && !showTopSheet) {
-                        showTopSheet = true
-                    } else if (dragAmount < 0 && showTopSheet) {
-                        showTopSheet = false
+        Column(
+            modifier = Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures { _, dragAmount ->
+                    coroutineScope.launch {
+                        if (dragAmount > 0 && !showTopSheet) {
+                            showTopSheet = true
+                        } else if (dragAmount < 0 && showTopSheet) {
+                            showTopSheet = false
+                        }
                     }
                 }
             }
-        }) {
+        ) {
             AnimatedVisibility(
                 visible = showTopSheet,
                 enter = slideInVertically(),
@@ -94,18 +97,18 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
             }
 
             Canvas(modifier = Modifier.fillMaxSize()) {
-                matrix.forEachIndexed { i, row ->
-                    row.forEachIndexed { j, cell ->
-                        val color = when {
-                            cell.isAlive -> baseGreen
-                            else -> Color.White
-                        }
+                matrix.forEachIndexed { rowIndex, row ->
+                    for (colIndex in 0 until gameBoard.settings.width) {
+                        val isCellAlive =
+                            (row shr colIndex) and 1L == 1L
+                        val color = if (isCellAlive) baseGreen else Color.White
+
                         drawCircle(
                             color,
                             cellSize / 2f,
                             center = Offset(
-                                i * cellSize + cellSize / 2f,
-                                j * cellSize + cellSize / 2f
+                                colIndex * cellSize + cellSize / 2f,
+                                rowIndex * cellSize + cellSize / 2f
                             )
                         )
                     }
@@ -114,3 +117,4 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
         }
     }
 }
+

@@ -3,7 +3,9 @@ package org.redbyte.life.ui.settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import org.redbyte.life.common.ClassicRule
 import org.redbyte.life.common.GameBoard
+import org.redbyte.life.common.Rule
 import org.redbyte.life.common.data.GameSettings
 
 class SharedGameSettingsViewModel : ViewModel() {
@@ -17,16 +19,17 @@ class SharedGameSettingsViewModel : ViewModel() {
     }
 
     fun resetGameBoard(newSettings: GameSettings? = null) {
-        val gameSettings = newSettings ?: settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings)
+        val gameSettings =
+            newSettings ?: settings.value ?: throw RuntimeException("Game settings cannot be null")
+        _gameBoard = GameBoard(gameSettings, ClassicRule())
     }
 
     fun getGameBoard(): GameBoard = _gameBoard ?: resetGameBoardAndGet()
 
     private fun resetGameBoardAndGet(): GameBoard {
         val gameSettings = settings.value ?: throw RuntimeException("Game settings cannot be null")
-        _gameBoard = GameBoard(gameSettings)
-        return _gameBoard!!
+        _gameBoard = GameBoard(gameSettings, ClassicRule())
+        return _gameBoard as GameBoard
     }
 }
 

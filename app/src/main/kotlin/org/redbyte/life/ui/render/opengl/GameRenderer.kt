@@ -9,7 +9,6 @@ import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-
 class GameRenderer(
     private val gameBoard: GameBoard,
     private val onCellCountUpdate: (Int, Int) -> Unit
@@ -66,8 +65,8 @@ class GameRenderer(
 
         gameBoard.matrix.forEachIndexed { y, row ->
             val aliveColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
-            row.forEachIndexed { x, cell ->
-                if (cell.isAlive) {
+            for (x in 0 until gameBoard.settings.width) {
+                if ((row shr x) and 1L == 1L) {
                     val squareCoords =
                         calculateSquareCoords(x, y, gameBoard.settings.width, gameBoard.settings.height)
                     val vertexBuffer = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
@@ -88,7 +87,6 @@ class GameRenderer(
                         vertexBuffer
                     )
 
-
                     GLES20.glUniform4fv(colorHandle, 1, aliveColor, 0)
 
                     GLES20.glDrawArrays(
@@ -101,6 +99,7 @@ class GameRenderer(
                 }
             }
         }
+
         if (deltaTime >= updateInterval) {
             gameBoard.update()
             onCellCountUpdate(gameBoard.countLivingCells(), ++turn)
