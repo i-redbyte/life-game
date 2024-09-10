@@ -39,3 +39,7 @@ data object LifeWithoutDeathRule : Rule {
         isAlive || neighbors == 3
 }
 
+data object ReplicatorRule : Rule {
+    override fun apply(isAlive: Boolean, neighbors: Int): Boolean =
+        neighbors % 2 == 1
+}
