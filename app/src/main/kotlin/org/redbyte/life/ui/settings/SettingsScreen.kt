@@ -1,10 +1,12 @@
 package org.redbyte.life.ui.settings
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
@@ -24,13 +26,14 @@ import androidx.navigation.NavHostController
 import org.redbyte.life.R
 import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.common.domain.*
+import org.redbyte.life.ui.settings.img.IcArrowDown
 import org.redbyte.life.ui.theme.*
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
     var width by remember { mutableStateOf("32") }
     var height by remember { mutableStateOf("64") }
-    var initialPopulation by remember { mutableStateOf("128") }
+    var initialPopulation by remember { mutableStateOf("256") }
     var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) }
 
     Surface(color = baseBlack) {
@@ -134,30 +137,51 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
     )
 
     Box(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = ruleNames[rules.indexOf(selectedRule)],
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = true }
                 .padding(16.dp),
-            fontWeight = FontWeight.Bold,
-            color = baseWhite
-        )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = ruleNames[rules.indexOf(selectedRule)],
+                fontWeight = FontWeight.Bold,
+                color = baseWhite,
+                modifier = Modifier.weight(1f)
+            )
+            Image(
+                imageVector = IcArrowDown,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             rules.forEachIndexed { index, rule ->
+                val backgroundColor = if (index % 2 == 0) baseBlack else baseDarkGray
+
                 DropdownMenuItem(
                     text = {
-                        Text(text = ruleNames[index])
+                        Text(
+                            text = ruleNames[index],
+                            color = baseWhite
+                        )
                     },
+                    modifier = Modifier
+                        .background(backgroundColor)
+                        .fillMaxWidth(),
                     onClick = {
                         onRuleSelected(rule)
                         expanded = false
                     }
                 )
+                if (index != rules.lastIndex) {
+                    Divider(color = baseLightGray, thickness = 1.dp)
+                }
             }
         }
     }
