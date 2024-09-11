@@ -233,7 +233,9 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(200.dp)
                     .background(baseBlack)
+                    .verticalScroll(rememberScrollState())
             ) {
                 rules.forEachIndexed { index, rule ->
                     val backgroundColor by animateColorAsState(
