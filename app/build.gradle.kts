@@ -2,8 +2,6 @@ plugins {
     kotlin("kapt")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("androidx.navigation.safeargs.kotlin")
-    id("kotlin-parcelize")
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
@@ -14,9 +12,10 @@ android {
     defaultConfig {
         applicationId = "org.redbyte.life"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
+
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -54,28 +53,29 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.5")
     implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation(platform("androidx.compose:compose-bom:2024.09.01"))
+    implementation("com.google.android.material:material:1.12.0")
     implementation("io.arrow-kt:arrow-core:1.2.4")
     implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
+
+    // Material 3
     implementation("androidx.compose.material3:material3")
 
     // Navigation for Compose
-    val navVersion = "2.7.6"
-    implementation("androidx.navigation:navigation-compose:$navVersion")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
 
     // Testing dependencies
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    // Debugging UI and Testing
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

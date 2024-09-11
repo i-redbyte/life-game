@@ -13,7 +13,7 @@
     <string name="compose_game">Compose Game</string>
     <string name="opengl_game">OpenGL Game</string>
     <string name="classic_rule">\"Классическое\" правило</string>
-    <string name="highlife_rule">\"Жизнь в роскоши\"</string>
+    <string name="highlife_rule">\"Высокий уровень жизни\"</string>
     <string name="day_and_night_rule">\"День и Ночь\"</string>
     <string name="morley_rule">\"Морли\"</string>
     <string name="two_by_two_rule">\"2x2\"</string>

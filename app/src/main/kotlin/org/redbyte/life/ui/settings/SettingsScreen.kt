@@ -1,5 +1,6 @@
 package org.redbyte.life.ui.settings
 
+import IcArrowDown
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,7 +37,7 @@ import androidx.navigation.NavHostController
 import org.redbyte.life.R
 import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.common.domain.*
-import org.redbyte.life.ui.settings.img.IcArrowDown
+
 import org.redbyte.life.ui.theme.*
 
 @Composable
