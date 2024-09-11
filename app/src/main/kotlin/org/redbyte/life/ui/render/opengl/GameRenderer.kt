@@ -16,100 +16,68 @@ class GameRenderer(
     private val gameBoard: GameBoard,
     private val onCellCountUpdate: (Int, Int) -> Unit
 ) : Renderer {
-    private var squareShaderProgram: Int = 0
+
+    private var shaderProgramId: Int = 0
     private val projectionMatrix = FloatArray(16)
     private var lastUpdateTime = System.nanoTime()
-    private val updateInterval = 128_000_000
-    private var turn = 0
+    private val updateInterval = 128_000_000L
+    private var turnCounter = 0
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        fun readRawTextFile(resId: Int): String =
-            context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
-
-        GLES20.glClearColor(0f, 0f, 0.2f, 1.0f)
-        val vertexShaderCode = readRawTextFile(R.raw.vertex_shader)
-        val fragmentShaderCode = readRawTextFile(R.raw.fragment_shader)
-
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
-
-        squareShaderProgram = GLES20.glCreateProgram().also {
-            GLES20.glAttachShader(it, vertexShader)
-            GLES20.glAttachShader(it, fragmentShader)
-            GLES20.glLinkProgram(it)
-        }
+        initializeOpenGL()
+        shaderProgramId = createShaderProgram(R.raw.vertex_shader, R.raw.fragment_shader)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        val currentTime = System.nanoTime()
-        val deltaTime = currentTime - lastUpdateTime
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glUseProgram(shaderProgramId)
 
-        GLES20.glUseProgram(squareShaderProgram)
-
-        val positionHandle = GLES20.glGetAttribLocation(squareShaderProgram, "vPosition")
-        val colorHandle = GLES20.glGetUniformLocation(squareShaderProgram, "vColor")
-        val mvpMatrixHandle = GLES20.glGetUniformLocation(squareShaderProgram, "uMVPMatrix")
-
-        val vertexStride = COORDS_PER_VERTEX * 4
-        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, projectionMatrix, 0)
-
-        gameBoard.matrix.forEachIndexed { y, row ->
-            val aliveColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
-            for (x in 0 until gameBoard.settings.width) {
-                if ((row shr x) and 1L == 1L) {
-                    val squareCoords =
-                        calculateSquareCoords(
-                            x,
-                            y,
-                            gameBoard.settings.width,
-                            gameBoard.settings.height
-                        )
-                    val vertexBuffer = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
-                        order(ByteOrder.nativeOrder())
-                        asFloatBuffer().apply {
-                            put(squareCoords)
-                            position(0)
-                        }
-                    }
-
-                    GLES20.glEnableVertexAttribArray(positionHandle)
-                    GLES20.glVertexAttribPointer(
-                        positionHandle,
-                        COORDS_PER_VERTEX,
-                        GLES20.GL_FLOAT,
-                        false,
-                        vertexStride,
-                        vertexBuffer
-                    )
-
-                    GLES20.glUniform4fv(colorHandle, 1, aliveColor, 0)
-
-                    GLES20.glDrawArrays(
-                        GLES20.GL_TRIANGLE_STRIP,
-                        0,
-                        squareCoords.size / COORDS_PER_VERTEX
-                    )
-
-                    GLES20.glDisableVertexAttribArray(positionHandle)
-                }
-            }
-        }
+        val deltaTime = System.nanoTime() - lastUpdateTime
+        renderGameBoard()
 
         if (deltaTime >= updateInterval) {
-            gameBoard.update()
-            onCellCountUpdate(gameBoard.countLivingCells(), ++turn)
-            lastUpdateTime = currentTime
+            updateGameState()
+            lastUpdateTime = System.nanoTime()
         }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
+        setProjectionMatrix(width, height)
+    }
+
+    private fun initializeOpenGL() {
+        GLES20.glClearColor(0f, 0f, 0.2f, 1.0f)
+    }
+
+    private fun createShaderProgram(vertexShaderResId: Int, fragmentShaderResId: Int): Int {
+        val vertexShaderCode = readShaderCode(vertexShaderResId)
+        val fragmentShaderCode = readShaderCode(fragmentShaderResId)
+
+        val vertexShaderId = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+        val fragmentShaderId = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+
+        return GLES20.glCreateProgram().also {
+            GLES20.glAttachShader(it, vertexShaderId)
+            GLES20.glAttachShader(it, fragmentShaderId)
+            GLES20.glLinkProgram(it)
+        }
+    }
+
+    private fun readShaderCode(resId: Int): String =
+        context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+
+    private fun loadShader(type: Int, shaderCode: String): Int {
+        return GLES20.glCreateShader(type).also { shader ->
+            GLES20.glShaderSource(shader, shaderCode)
+            GLES20.glCompileShader(shader)
+        }
+    }
+
+    private fun setProjectionMatrix(width: Int, height: Int) {
         val aspectRatio = if (width >= height) {
-            // landscape
             width.toFloat() / height
         } else {
-            // portrait
             height.toFloat() / width
         }
         if (width >= height) {
@@ -119,16 +87,51 @@ class GameRenderer(
         }
     }
 
-    private fun loadShader(type: Int, shaderCode: String): Int {
-        return GLES20.glCreateShader(type).also { shader ->
-            GLES20.glShaderSource(shader, shaderCode)
-            GLES20.glCompileShader(shader)
+    private fun renderGameBoard() {
+        val positionHandle = GLES20.glGetAttribLocation(shaderProgramId, "vPosition")
+        val colorHandle = GLES20.glGetUniformLocation(shaderProgramId, "vColor")
+        val mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramId, "uMVPMatrix")
+
+        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, projectionMatrix, 0)
+
+        gameBoard.matrix.forEachIndexed { y, row ->
+            val aliveCellColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
+            drawAliveCellsInRow(row, y, positionHandle, colorHandle, aliveCellColor)
         }
     }
 
-    private fun calculateSquareCoords(x: Int, y: Int, width: Int, height: Int): FloatArray {
-        val normalizedCellWidth = 2.0f / width
-        val normalizedCellHeight = 2.0f / height
+    private fun drawAliveCellsInRow(row: Long, y: Int, positionHandle: Int, colorHandle: Int, color: FloatArray) {
+        val vertexStride = COORDS_PER_VERTEX * 4
+        for (x in 0 until gameBoard.settings.width) {
+            if ((row shr x) and 1L == 1L) {
+                val squareCoords = calculateSquareCoords(x, y)
+                val vertexBuffer = createVertexBuffer(squareCoords)
+
+                GLES20.glEnableVertexAttribArray(positionHandle)
+                GLES20.glVertexAttribPointer(positionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer)
+                GLES20.glUniform4fv(colorHandle, 1, color, 0)
+                GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, squareCoords.size / COORDS_PER_VERTEX)
+                GLES20.glDisableVertexAttribArray(positionHandle)
+            }
+        }
+    }
+
+    private fun updateGameState() {
+        gameBoard.update()
+        onCellCountUpdate(gameBoard.countLivingCells(), ++turnCounter)
+    }
+
+    private fun createVertexBuffer(squareCoords: FloatArray) = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
+        order(ByteOrder.nativeOrder())
+        asFloatBuffer().apply {
+            put(squareCoords)
+            position(0)
+        }
+    }
+
+    private fun calculateSquareCoords(x: Int, y: Int): FloatArray {
+        val normalizedCellWidth = 2.0f / gameBoard.settings.width
+        val normalizedCellHeight = 2.0f / gameBoard.settings.height
         val normalizedX = -1f + x * normalizedCellWidth
         val normalizedY = 1f - y * normalizedCellHeight
 
