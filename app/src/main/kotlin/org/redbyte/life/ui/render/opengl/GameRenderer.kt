@@ -22,6 +22,7 @@ class GameRenderer(
     private var lastUpdateTime = System.nanoTime()
     private val updateInterval = 128_000_000L
     private var turnCounter = 0
+    private var aspectRatio: Float = 1f
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         initializeOpenGL()
@@ -43,6 +44,11 @@ class GameRenderer(
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
+        aspectRatio = if (width >= height) {
+            width.toFloat() / height
+        } else {
+            height.toFloat() / width
+        }
         setProjectionMatrix(width, height)
     }
 
@@ -54,12 +60,13 @@ class GameRenderer(
         val vertexShaderCode = readShaderCode(vertexShaderResId)
         val fragmentShaderCode = readShaderCode(fragmentShaderResId)
 
-        val vertexShaderId = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShaderId = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
-
-        return GLES20.glCreateProgram().also {
-            GLES20.glAttachShader(it, vertexShaderId)
-            GLES20.glAttachShader(it, fragmentShaderId)
+        return listOf(
+            loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode),
+            loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+        ).fold(GLES20.glCreateProgram()) { program, shader ->
+            GLES20.glAttachShader(program, shader)
+            program
+        }.also {
             GLES20.glLinkProgram(it)
         }
     }
@@ -67,53 +74,64 @@ class GameRenderer(
     private fun readShaderCode(resId: Int): String =
         context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
 
-    private fun loadShader(type: Int, shaderCode: String): Int {
-        return GLES20.glCreateShader(type).also { shader ->
-            GLES20.glShaderSource(shader, shaderCode)
-            GLES20.glCompileShader(shader)
+    private fun loadShader(type: Int, shaderCode: String): Int =
+        GLES20.glCreateShader(type).apply {
+            GLES20.glShaderSource(this, shaderCode)
+            GLES20.glCompileShader(this)
         }
-    }
 
     private fun setProjectionMatrix(width: Int, height: Int) {
-        val aspectRatio = if (width >= height) {
-            width.toFloat() / height
-        } else {
-            height.toFloat() / width
-        }
-        if (width >= height) {
-            Matrix.orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f)
-        } else {
-            Matrix.orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f)
-        }
+        val aspectRatio = (width.toFloat() / height).let { if (width >= height) it else 1 / it }
+        Matrix.orthoM(
+            projectionMatrix, 0,
+            if (width >= height) -aspectRatio else -1f,
+            if (width >= height) aspectRatio else 1f,
+            -1f, 1f, -1f, 1f
+        )
     }
 
     private fun renderGameBoard() {
-        val positionHandle = GLES20.glGetAttribLocation(shaderProgramId, "vPosition")
-        val colorHandle = GLES20.glGetUniformLocation(shaderProgramId, "vColor")
-        val mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramId, "uMVPMatrix")
+        val handles = getHandles()
 
-        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, projectionMatrix, 0)
+        GLES20.glUniformMatrix4fv(handles.mvpMatrixHandle, 1, false, projectionMatrix, 0)
 
         gameBoard.matrix.forEachIndexed { y, row ->
-            val aliveCellColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
-            drawAliveCellsInRow(row, y, positionHandle, colorHandle, aliveCellColor)
+            drawAliveCellsInRow(row, y, handles)
         }
     }
 
-    private fun drawAliveCellsInRow(row: Long, y: Int, positionHandle: Int, colorHandle: Int, color: FloatArray) {
-        val vertexStride = COORDS_PER_VERTEX * 4
-        for (x in 0 until gameBoard.settings.width) {
-            if ((row shr x) and 1L == 1L) {
-                val squareCoords = calculateSquareCoords(x, y)
-                val vertexBuffer = createVertexBuffer(squareCoords)
+    private fun getHandles(): Handles = Handles(
+        positionHandle = GLES20.glGetAttribLocation(shaderProgramId, "vPosition"),
+        colorHandle = GLES20.glGetUniformLocation(shaderProgramId, "vColor"),
+        mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramId, "uMVPMatrix")
+    )
 
-                GLES20.glEnableVertexAttribArray(positionHandle)
-                GLES20.glVertexAttribPointer(positionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer)
-                GLES20.glUniform4fv(colorHandle, 1, color, 0)
-                GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, squareCoords.size / COORDS_PER_VERTEX)
-                GLES20.glDisableVertexAttribArray(positionHandle)
+    private fun drawAliveCellsInRow(row: Long, y: Int, handles: Handles) {
+        val aliveCellColor = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
+        val vertexStride = COORDS_PER_VERTEX * 4
+
+        (0 until gameBoard.settings.width)
+            .filter { (row shr it) and 1L == 1L }
+            .map { x -> calculateSquareCoords(x, y) }
+            .forEach { squareCoords ->
+                drawCell(squareCoords, handles, aliveCellColor, vertexStride)
             }
-        }
+    }
+
+    private fun drawCell(squareCoords: FloatArray, handles: Handles, color: FloatArray, vertexStride: Int) {
+        val vertexBuffer = createVertexBuffer(squareCoords)
+        GLES20.glEnableVertexAttribArray(handles.positionHandle)
+        GLES20.glVertexAttribPointer(
+            handles.positionHandle,
+            COORDS_PER_VERTEX,
+            GLES20.GL_FLOAT,
+            false,
+            vertexStride,
+            vertexBuffer
+        )
+        GLES20.glUniform4fv(handles.colorHandle, 1, color, 0)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, squareCoords.size / COORDS_PER_VERTEX)
+        GLES20.glDisableVertexAttribArray(handles.positionHandle)
     }
 
     private fun updateGameState() {
@@ -143,7 +161,14 @@ class GameRenderer(
         )
     }
 
+
     companion object {
         const val COORDS_PER_VERTEX = 2
     }
+
+    data class Handles(
+        val positionHandle: Int,
+        val colorHandle: Int,
+        val mvpMatrixHandle: Int
+    )
 }

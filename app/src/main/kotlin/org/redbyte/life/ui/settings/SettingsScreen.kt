@@ -29,7 +29,7 @@ import org.redbyte.life.ui.theme.*
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
     var width by remember { mutableStateOf("32") }
-    var height by remember { mutableStateOf("32") }
+    var height by remember { mutableStateOf("64") }
     var initialPopulation by remember { mutableStateOf("128") }
     var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) }
 
