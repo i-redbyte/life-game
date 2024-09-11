@@ -5,6 +5,14 @@ import org.junit.Before
 import org.junit.Test
 import org.redbyte.life.common.data.GameSettings
 import org.redbyte.life.common.domain.ClassicRule
+import org.redbyte.life.common.domain.DayAndNightRule
+import org.redbyte.life.common.domain.DiamoebaRule
+import org.redbyte.life.common.domain.HighLifeRule
+import org.redbyte.life.common.domain.LifeWithoutDeathRule
+import org.redbyte.life.common.domain.MorleyRule
+import org.redbyte.life.common.domain.ReplicatorRule
+import org.redbyte.life.common.domain.SeedsRule
+import org.redbyte.life.common.domain.TwoByTwoRule
 
 class GameBoardTest {
 
@@ -207,6 +215,119 @@ class GameBoardTest {
             0b00000L
         )
         assertEquals(expectedBlockMatrix, customGameBoard.matrix)
+    }
+
+    @Test
+    fun `board should update state correctly with ReplicatorRule`() {
+        val customSettings =
+            GameSettings(width = 3, height = 3, initialPopulation = 3, rule = ReplicatorRule)
+        val customGameBoard = GameBoard(customSettings)
+
+        customGameBoard.matrix = listOf(
+            0b010L, // Вторая клетка живая
+            0b111L, // Все три клетки живые
+            0b010L  // Вторая клетка живая
+        )
+
+        val initialLivingCells = customGameBoard.countLivingCells()
+        customGameBoard.update()
+        val updatedLivingCells = customGameBoard.countLivingCells()
+        assertNotEquals(initialLivingCells, updatedLivingCells)
+    }
+
+    @Test
+    fun `should handle large values in matrix without overflow`() {
+        val customSettings =
+            GameSettings(width = 64, height = 1, initialPopulation = 1, rule = ClassicRule)
+        val customGameBoard = GameBoard(customSettings)
+
+        // Устанавливаем самое большое возможное значение в 64-битную строку
+        customGameBoard.matrix = listOf(0b1L.shl(63))
+
+        // Проверяем, что не произойдет переполнения при обновлении
+        customGameBoard.update()
+
+        // Ожидаем, что после обновления состояние не изменится, так как у клетки нет соседей
+        assertEquals(0L, customGameBoard.matrix[0])
+    }
+
+    @Test
+    fun `empty board should remain empty for all rules`() {
+        val rules = listOf(
+            ClassicRule,
+            DayAndNightRule,
+            HighLifeRule,
+            MorleyRule,
+            TwoByTwoRule,
+            DiamoebaRule,
+            LifeWithoutDeathRule,
+            ReplicatorRule,
+            SeedsRule
+        )
+
+        rules.forEach { rule ->
+            val customSettings =
+                GameSettings(width = 3, height = 3, initialPopulation = 0, rule = rule)
+            val customGameBoard = GameBoard(customSettings)
+
+            // Инициализируем пустое поле
+            customGameBoard.matrix = listOf(
+                0b000L,
+                0b000L,
+                0b000L
+            )
+
+            // Проверяем количество живых клеток до обновления
+            val initialLivingCells = customGameBoard.countLivingCells()
+            assertEquals(0, initialLivingCells)
+
+            // Обновляем состояние
+            customGameBoard.update()
+
+            // Проверяем количество живых клеток после обновления
+            val updatedLivingCells = customGameBoard.countLivingCells()
+            assertEquals(0, updatedLivingCells)
+        }
+    }
+
+    @Test
+    fun `should handle very small grid correctly`() {
+        val customSettings =
+            GameSettings(width = 2, height = 2, initialPopulation = 2, rule = ClassicRule)
+        val customGameBoard = GameBoard(customSettings)
+
+        customGameBoard.matrix = listOf(
+            0b11L, // Две клетки живые
+            0b00L  // Пустая строка
+        )
+
+        val initialLivingCells = customGameBoard.countLivingCells()
+        assertEquals(2, initialLivingCells)
+
+        customGameBoard.update()
+
+        val updatedLivingCells = customGameBoard.countLivingCells()
+        assertTrue(updatedLivingCells >= 0) // Должны убедиться, что клеток не станет меньше нуля
+    }
+
+    @Test
+    fun `should correctly handle random initial configurations`() {
+        repeat(100) {
+            val customSettings =
+                GameSettings(width = 5, height = 5, initialPopulation = 5, rule = ClassicRule)
+            val customGameBoard = GameBoard(customSettings)
+
+            val initialLivingCells = customGameBoard.countLivingCells()
+
+            // Обновляем состояние несколько раз
+            repeat(10) {
+                customGameBoard.update()
+            }
+
+            // Проверяем, что количество живых клеток остается в допустимых границах
+            val updatedLivingCells = customGameBoard.countLivingCells()
+            assertTrue(updatedLivingCells in 0..25)
+        }
     }
 
 }

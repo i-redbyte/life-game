@@ -4,15 +4,13 @@ import org.redbyte.life.common.data.GameSettings
 
 typealias CellMatrix = List<Long>
 
-class GameBoard(val settings: GameSettings, initialMatrix: CellMatrix? = null) {
+class GameBoard(val settings: GameSettings) {
 
-    var matrix: CellMatrix = initialMatrix ?: List(settings.height) { 0L }
+    var matrix: CellMatrix = List(settings.height) { 0L }
     private val rule = settings.rule
 
     init {
-        if (initialMatrix == null) {
-            populateInitialCells()
-        }
+        populateInitialCells()
     }
 
     private fun populateInitialCells() {
