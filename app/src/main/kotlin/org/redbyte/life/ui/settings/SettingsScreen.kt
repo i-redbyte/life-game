@@ -1,5 +1,7 @@
 package org.redbyte.life.ui.settings
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +18,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
@@ -136,11 +139,17 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
         stringResource(R.string.seeds_rule)
     )
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    val arrowRotationDegree by animateFloatAsState(if (expanded) 180f else 0f, label = "")
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = !expanded }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -153,7 +162,9 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
             Image(
                 imageVector = IcArrowDown,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(arrowRotationDegree)
             )
         }
 
