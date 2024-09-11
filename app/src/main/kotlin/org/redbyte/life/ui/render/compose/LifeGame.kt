@@ -36,29 +36,31 @@ private const val DELAY_UPDATE_WORLD = 150L
 
 @Composable
 fun LifeGame(viewModel: SharedGameSettingsViewModel) {
-    fun Long.countBits(): Int =
-        this.toString(2).count { it == '1' }
+    fun Long.countBits(): Int = this.toString(2).count { it == '1' }
+
+    val initialBoard = remember { viewModel.getGameBoard() }
     viewModel.resetGameBoard()
-    val gameBoard = viewModel.getGameBoard()
+
     val coroutineScope = rememberCoroutineScope()
+
     var showTopSheet by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
+    var turnNumber by remember { mutableIntStateOf(0) }
+    var cellCount by remember { mutableIntStateOf(0) }
+    var matrix by remember { mutableStateOf(initialBoard.matrix) }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
-        val cellSize = screenWidth / gameBoard.settings.width
-        val cellCount = remember { mutableIntStateOf(0) }
-        val turnNumber = remember { mutableIntStateOf(0) }
-        var matrix by remember { mutableStateOf(gameBoard.matrix) }
+        val cellSize = screenWidth / initialBoard.settings.width
 
         LaunchedEffect(isPaused) {
             if (!isPaused) {
                 while (true) {
                     delay(DELAY_UPDATE_WORLD)
-                    val updatedBoard = gameBoard.update()
+                    val updatedBoard = initialBoard.update()
                     matrix = updatedBoard.matrix
-                    cellCount.intValue = updatedBoard.matrix.sumOf { row -> row.countBits() }
-                    turnNumber.intValue++
+                    cellCount = updatedBoard.matrix.sumOf { row -> row.countBits() }
+                    turnNumber++
                 }
             }
         }
@@ -67,11 +69,8 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
             modifier = Modifier.pointerInput(Unit) {
                 detectVerticalDragGestures { _, dragAmount ->
                     coroutineScope.launch {
-                        if (dragAmount > 0 && !showTopSheet) {
-                            showTopSheet = true
-                        } else if (dragAmount < 0 && showTopSheet) {
-                            showTopSheet = false
-                        }
+                        if (dragAmount > 0 && !showTopSheet) showTopSheet = true
+                        else if (dragAmount < 0 && showTopSheet) showTopSheet = false
                     }
                 }
             }
@@ -86,7 +85,7 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(stringResource(R.string.turn, turnNumber.intValue))
+                    Text(stringResource(R.string.turn, turnNumber))
                     Button(onClick = { isPaused = !isPaused }) {
                         Text(
                             if (isPaused) stringResource(R.string.continue_game)
@@ -98,14 +97,12 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
 
             Canvas(modifier = Modifier.fillMaxSize()) {
                 matrix.forEachIndexed { rowIndex, row ->
-                    for (colIndex in 0 until gameBoard.settings.width) {
-                        val isCellAlive =
-                            (row shr colIndex) and 1L == 1L
+                    repeat(initialBoard.settings.width) { colIndex ->
+                        val isCellAlive = (row shr colIndex) and 1L == 1L
                         val color = if (isCellAlive) baseGreen else Color.White
-
                         drawCircle(
-                            color,
-                            cellSize / 2f,
+                            color = color,
+                            radius = cellSize / 2f,
                             center = Offset(
                                 colIndex * cellSize + cellSize / 2f,
                                 rowIndex * cellSize + cellSize / 2f
@@ -117,4 +114,6 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
         }
     }
 }
+
+
 
