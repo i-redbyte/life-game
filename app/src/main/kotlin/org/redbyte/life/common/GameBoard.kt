@@ -4,13 +4,15 @@ import org.redbyte.life.common.data.GameSettings
 
 typealias CellMatrix = List<Long>
 
-class GameBoard(val settings: GameSettings) {
+class GameBoard(val settings: GameSettings, initialMatrix: CellMatrix? = null) {
 
-    var matrix: CellMatrix = List(settings.height) { 0L }
+    var matrix: CellMatrix = initialMatrix ?: List(settings.height) { 0L }
     private val rule = settings.rule
 
     init {
-        populateInitialCells()
+        if (initialMatrix == null) {
+            populateInitialCells()
+        }
     }
 
     private fun populateInitialCells() {
@@ -29,7 +31,7 @@ class GameBoard(val settings: GameSettings) {
 
     fun update(): GameBoard {
         matrix = matrix.mapIndexed { y, row ->
-            row.mapBitsIndexed { x, isAlive ->
+            row.mapBitsIndexed(settings.width) { x, isAlive ->
                 val neighbors = countNeighbors(x, y)
                 rule.apply(isAlive, neighbors)
             }
@@ -40,7 +42,7 @@ class GameBoard(val settings: GameSettings) {
     fun countLivingCells(): Int =
         matrix.sumOf { row -> row.countBits() }
 
-    private fun countNeighbors(x: Int, y: Int): Int {
+    internal fun countNeighbors(x: Int, y: Int): Int {
         val directions = listOf(
             Pair(-1, -1), Pair(-1, 0), Pair(-1, 1),
             Pair(0, -1), Pair(0, 1),
@@ -64,9 +66,9 @@ class GameBoard(val settings: GameSettings) {
         if (isAlive) this or (1L shl x)
         else this and (1L shl x).inv()
 
-    private fun Long.mapBitsIndexed(action: (Int, Boolean) -> Boolean): Long {
+    private fun Long.mapBitsIndexed(width: Int, action: (Int, Boolean) -> Boolean): Long {
         var result = 0L
-        for (i in 0 until Long.SIZE_BITS) {
+        for (i in 0 until width) {
             val isAlive = (this shr i) and 1L == 1L
             result = result.setBitAlive(i, action(i, isAlive))
         }
