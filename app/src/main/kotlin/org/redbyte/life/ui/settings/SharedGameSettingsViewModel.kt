@@ -4,9 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.redbyte.life.common.GameBoard
 import org.redbyte.life.common.data.GameSettings
+import org.redbyte.life.common.domain.ClassicRule
 
 class SharedGameSettingsViewModel : ViewModel() {
-    private lateinit var _settings: GameSettings
+    private var _settings: GameSettings? = null
     private val _gameBoard: MutableLiveData<GameBoard> = MutableLiveData()
 
     fun setupSettings(newSettings: GameSettings) {
@@ -15,23 +16,33 @@ class SharedGameSettingsViewModel : ViewModel() {
     }
 
     fun resetGameBoard() {
-        if (!::_settings.isInitialized) {
-            throw RuntimeException("Game settings must be initialized before resetting the game board")
-        }
-        _gameBoard.value = GameBoard(_settings)
+        val settings = _settings ?: GameSettings(
+            width = 32,
+            height = 64,
+            initialPopulation = 256,
+            rule = ClassicRule
+        )
+        _gameBoard.value = GameBoard(settings)
     }
 
     fun getGameBoard(): GameBoard {
-        if (!::_settings.isInitialized) {
-            throw RuntimeException("Game settings must be initialized")
-        }
         return _gameBoard.value ?: resetGameBoardAndGet()
     }
 
     private fun resetGameBoardAndGet(): GameBoard {
         resetGameBoard()
-        return _gameBoard.value as GameBoard
+        return _gameBoard.value ?: throw RuntimeException("Game board could not be reset")
+    }
+
+    fun getGameSettings(): GameSettings {
+        return _settings ?: GameSettings(
+            width = 32,
+            height = 64,
+            initialPopulation = 256,
+            rule = ClassicRule
+        )
     }
 }
+
 
 

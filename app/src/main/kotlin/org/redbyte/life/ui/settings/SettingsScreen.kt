@@ -43,10 +43,11 @@ import org.redbyte.life.ui.theme.*
 
 @Composable
 fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettingsViewModel) {
-    var width by remember { mutableStateOf("32") }
-    var height by remember { mutableStateOf("64") }
-    var initialPopulation by remember { mutableStateOf("256") }
-    var selectedRule by remember { mutableStateOf<Rule>(ClassicRule) }
+    val gameSettings = viewModel.getGameSettings()
+    var width by remember { mutableStateOf(gameSettings.width.toString()) }
+    var height by remember { mutableStateOf(gameSettings.height.toString()) }
+    var initialPopulation by remember { mutableStateOf(gameSettings.initialPopulation.toString()) }
+    var selectedRule by remember { mutableStateOf(gameSettings.rule) }
 
     Surface(color = baseBlack) {
         Column(
@@ -67,22 +68,61 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
                     width = width,
                     height = height,
                     initialPopulation = initialPopulation,
-                    onWidthChange = { width = it },
-                    onHeightChange = { height = it },
-                    onInitialPopulationChange = { initialPopulation = it }
+                    onWidthChange = {
+                        width = it
+                        viewModel.setupSettings(
+                            GameSettings(
+                                width = if (it.isNotEmpty()) it.toInt() else 0,
+                                height = height.toInt(),
+                                initialPopulation = initialPopulation.toInt(),
+                                rule = selectedRule
+                            )
+                        )
+                    },
+                    onHeightChange = {
+                        height = it
+                        viewModel.setupSettings(
+                            GameSettings(
+                                width = width.toInt(),
+                                height = if (it.isNotEmpty()) it.toInt() else 0,
+                                initialPopulation = initialPopulation.toInt(),
+                                rule = selectedRule
+                            )
+                        )
+                    },
+                    onInitialPopulationChange = {
+                        initialPopulation = it
+                        viewModel.setupSettings(
+                            GameSettings(
+                                width = width.toInt(),
+                                height = height.toInt(),
+                                initialPopulation = if (it.isNotEmpty()) it.toInt() else 0,
+                                rule = selectedRule
+                            )
+                        )
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 RuleSelectionDropdown(
                     selectedRule = selectedRule,
-                    onRuleSelected = { selectedRule = it }
+                    onRuleSelected = {
+                        selectedRule = it
+                        viewModel.setupSettings(
+                            GameSettings(
+                                width = width.toInt(),
+                                height = height.toInt(),
+                                initialPopulation = initialPopulation.toInt(),
+                                rule = selectedRule
+                            )
+                        )
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Кнопки теперь закреплены внизу
             GameSelectionButtons(
                 width = width,
                 height = height,
@@ -181,11 +221,10 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(24.dp)
-                    .rotate(arrowRotationDegree) // Применение поворота
+                    .rotate(arrowRotationDegree)
             )
         }
 
-        // Анимированное выпадение меню
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(),
