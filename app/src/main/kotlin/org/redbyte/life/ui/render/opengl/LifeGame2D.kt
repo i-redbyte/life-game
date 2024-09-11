@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import org.redbyte.life.R
+import org.redbyte.life.common.GameBoard
 import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
 import org.redbyte.life.ui.theme.baseTeal
 
@@ -24,24 +25,43 @@ fun LifeGame2D(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView(
-            modifier = Modifier.matchParentSize(),
-            factory = { context ->
-                GLSurfaceView(context).apply {
-                    setEGLContextClientVersion(2)
-                    setRenderer(GameRenderer(context, gameBoard) { count, turn ->
-                        livingCellsCount.intValue = count
-                        turnGame.intValue = turn
-                    })
-                    renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-                }
+        GameBoardView(
+            gameBoard = gameBoard,
+            onGameUpdated = { count, turn ->
+                livingCellsCount.intValue = count
+                turnGame.intValue = turn
             }
         )
-        val livingCellsText =
-            stringResource(id = R.string.living_cells_count, livingCellsCount.intValue)
-        val gameTurnText = stringResource(id = R.string.game_turn, turnGame.intValue)
+        GameInfoView(
+            livingCellsCount = livingCellsCount.intValue,
+            turnGame = turnGame.intValue
+        )
+    }
+}
 
+@Composable
+fun GameBoardView(gameBoard: GameBoard, onGameUpdated: (Int, Int) -> Unit) {
+    val context = LocalContext.current
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = {
+            GLSurfaceView(context).apply {
+                setEGLContextClientVersion(2)
+                setRenderer(GameRenderer(context, gameBoard, onGameUpdated))
+                renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+            }
+        }
+    )
+}
+
+@Composable
+fun GameInfoView(livingCellsCount: Int, turnGame: Int) {
+    val livingCellsText = stringResource(id = R.string.living_cells_count, livingCellsCount)
+    val gameTurnText = stringResource(id = R.string.game_turn, turnGame)
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "$livingCellsText\n$gameTurnText",
             color = baseTeal,
@@ -50,6 +70,5 @@ fun LifeGame2D(viewModel: SharedGameSettingsViewModel) {
                 .align(Alignment.TopStart)
                 .padding(top = 32.dp, start = 16.dp)
         )
-
     }
 }
