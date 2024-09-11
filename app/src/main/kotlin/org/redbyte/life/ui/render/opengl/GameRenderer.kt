@@ -1,8 +1,10 @@
 package org.redbyte.life.ui.render.opengl
 
+import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView.Renderer
 import android.opengl.Matrix
+import org.redbyte.life.R
 import org.redbyte.life.common.GameBoard
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -10,34 +12,23 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class GameRenderer(
+    private val context: Context,
     private val gameBoard: GameBoard,
     private val onCellCountUpdate: (Int, Int) -> Unit
 ) : Renderer {
     private var squareShaderProgram: Int = 0
     private val projectionMatrix = FloatArray(16)
     private var lastUpdateTime = System.nanoTime()
-    private val updateInterval = 128_000_000_00
+    private val updateInterval = 128_000_000
     private var turn = 0
 
-    // TODO: load from files: fragment_shader.glsl vertex_shader,.glsl
-    private val vertexShaderCode = """
-        uniform mat4 uMVPMatrix;
-        attribute vec4 vPosition;
-        void main() {
-            gl_Position = uMVPMatrix * vPosition;
-        }
-    """.trimIndent()
-
-    private val fragmentShaderCode = """
-        precision mediump float;
-        uniform vec4 vColor;
-        void main() {
-            gl_FragColor = vColor;
-        }
-    """.trimIndent()
-
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        fun readRawTextFile(resId: Int): String =
+            context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+
         GLES20.glClearColor(0f, 0f, 0.2f, 1.0f)
+        val vertexShaderCode = readRawTextFile(R.raw.vertex_shader)
+        val fragmentShaderCode = readRawTextFile(R.raw.fragment_shader)
 
         val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
         val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
@@ -68,7 +59,12 @@ class GameRenderer(
             for (x in 0 until gameBoard.settings.width) {
                 if ((row shr x) and 1L == 1L) {
                     val squareCoords =
-                        calculateSquareCoords(x, y, gameBoard.settings.width, gameBoard.settings.height)
+                        calculateSquareCoords(
+                            x,
+                            y,
+                            gameBoard.settings.width,
+                            gameBoard.settings.height
+                        )
                     val vertexBuffer = ByteBuffer.allocateDirect(squareCoords.size * 4).run {
                         order(ByteOrder.nativeOrder())
                         asFloatBuffer().apply {

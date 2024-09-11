@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,14 +24,13 @@ fun LifeGame2D(viewModel: SharedGameSettingsViewModel) {
     val gameBoard = viewModel.getGameBoard()
     val livingCellsCount = remember { mutableIntStateOf(gameBoard.settings.initialPopulation) }
     val turnGame = remember { mutableIntStateOf(0) }
-
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             modifier = Modifier.matchParentSize(),
             factory = { context ->
                 GLSurfaceView(context).apply {
                     setEGLContextClientVersion(2)
-                    setRenderer(GameRenderer(gameBoard) { count, turn ->
+                    setRenderer(GameRenderer(context, gameBoard) { count, turn ->
                         livingCellsCount.intValue = count
                         turnGame.intValue = turn
                     })
