@@ -1,13 +1,22 @@
 package org.redbyte.life.ui.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,23 +58,31 @@ fun SettingsScreen(navController: NavHostController, viewModel: SharedGameSettin
             HeaderTitle(text = stringResource(R.string.game_settings))
             Spacer(modifier = Modifier.height(16.dp))
 
-            GameSettingsInputFields(
-                width = width,
-                height = height,
-                initialPopulation = initialPopulation,
-                onWidthChange = { width = it },
-                onHeightChange = { height = it },
-                onInitialPopulationChange = { initialPopulation = it }
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                GameSettingsInputFields(
+                    width = width,
+                    height = height,
+                    initialPopulation = initialPopulation,
+                    onWidthChange = { width = it },
+                    onHeightChange = { height = it },
+                    onInitialPopulationChange = { initialPopulation = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            RuleSelectionDropdown(
-                selectedRule = selectedRule,
-                onRuleSelected = { selectedRule = it })
+                RuleSelectionDropdown(
+                    selectedRule = selectedRule,
+                    onRuleSelected = { selectedRule = it }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
+            // Кнопки теперь закреплены внизу
             GameSelectionButtons(
                 width = width,
                 height = height,
@@ -141,10 +158,10 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
 
     val arrowRotationDegree by animateFloatAsState(if (expanded) 180f else 0f, label = "")
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize()
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -164,34 +181,51 @@ fun RuleSelectionDropdown(selectedRule: Rule, onRuleSelected: (Rule) -> Unit) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(24.dp)
-                    .rotate(arrowRotationDegree)
+                    .rotate(arrowRotationDegree) // Применение поворота
             )
         }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        // Анимированное выпадение меню
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(),
+            exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut()
         ) {
-            rules.forEachIndexed { index, rule ->
-                val backgroundColor = if (index % 2 == 0) baseBlack else baseDarkGray
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(baseBlack)
+            ) {
+                rules.forEachIndexed { index, rule ->
+                    val backgroundColor by animateColorAsState(
+                        targetValue = if (rule == selectedRule) greenSeaWave else baseBlack,
+                        animationSpec = tween(durationMillis = 300),
+                        label = ""
+                    )
 
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = ruleNames[index],
-                            color = baseWhite
-                        )
-                    },
-                    modifier = Modifier
-                        .background(backgroundColor)
-                        .fillMaxWidth(),
-                    onClick = {
-                        onRuleSelected(rule)
-                        expanded = false
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = ruleNames[index],
+                                color = if (rule == selectedRule) baseBlack else baseWhite,
+                            )
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                            .clickable {
+                                onRuleSelected(rule)
+                                expanded = false
+                            },
+                        onClick = {
+                            onRuleSelected(rule)
+                            expanded = false
+                        }
+                    )
+
+                    if (index != rules.lastIndex) {
+                        Divider(color = baseLightGray, thickness = 1.dp)
                     }
-                )
-                if (index != rules.lastIndex) {
-                    Divider(color = baseLightGray, thickness = 1.dp)
                 }
             }
         }
