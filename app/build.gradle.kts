@@ -50,6 +50,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            outputImpl.outputFileName = "life-${versionName}-${buildType.name}.apk"
+        }
+    }
+
 }
 
 dependencies {
@@ -59,7 +67,6 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation(platform("androidx.compose:compose-bom:2024.09.01"))
     implementation("com.google.android.material:material:1.12.0")
-    implementation("io.arrow-kt:arrow-core:1.2.4")
     implementation("androidx.compose.ui:ui")
 
     // Material 3

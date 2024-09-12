@@ -1,0 +1,84 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run unit tests
+        run: ./gradlew test
+
+      - name: Build the project
+        run: ./gradlew assembleDebug --info
+
+      - name: Find APK files
+        run: find app/build -name "*.apk"
+
+      - name: List APK files
+        run: |
+          if [ -d "app/build/intermediates/apk/debug" ]; then
+            ls -R app/build/intermediates/apk/debug
+          else
+            echo "Directory does not exist"
+          fi
+
+      - name: Upload APK as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: life-game-debug-apk
+          path: app/build/intermediates/apk/debug/life-1.0.0-debug.apk
+
+      - name: Verify artifact upload
+        run: |
+          if [ -f "app/build/intermediates/apk/debug/life-1.0.0-debug.apk" ]; then
+            echo "APK exists and was uploaded"
+          else
+            echo "APK does not exist, something went wrong with the build."
+            exit 1
+          fi
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: life-game-debug-apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: app/build/intermediates/apk/debug/life-1.0.0-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
