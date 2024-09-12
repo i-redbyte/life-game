@@ -21,5 +21,6 @@
     <string name="life_without_death_rule">\"Жизнь без смерти\"</string>
     <string name="replicator_rule">\"Репликатор\"</string>
     <string name="seeds_rule">\"Семена\"</string>
+    <string name="fps_display">FPS:</string>
 
 </resources>

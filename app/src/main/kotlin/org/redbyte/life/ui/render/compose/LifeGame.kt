@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.redbyte.life.R
+import org.redbyte.life.monitoring.FPSMonitor
 import org.redbyte.life.ui.settings.SharedGameSettingsViewModel
 import org.redbyte.life.ui.theme.baseGreen
 
@@ -48,6 +51,20 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
     var turnNumber by remember { mutableIntStateOf(0) }
     var cellCount by remember { mutableIntStateOf(0) }
     var matrix by remember { mutableStateOf(initialBoard.matrix) }
+    var fps by remember { mutableDoubleStateOf(0.0) }
+
+    val fpsMonitor = remember {
+        FPSMonitor { reportedFps ->
+            fps = reportedFps
+        }
+    }
+
+    DisposableEffect(Unit) {
+        fpsMonitor.start()
+        onDispose {
+            fpsMonitor.stop()
+        }
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val screenWidth = constraints.maxWidth
@@ -86,6 +103,7 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
                         .padding(16.dp)
                 ) {
                     Text(stringResource(R.string.turn, turnNumber))
+                    Text("FPS: $fps")
                     Button(onClick = { isPaused = !isPaused }) {
                         Text(
                             if (isPaused) stringResource(R.string.continue_game)
@@ -114,6 +132,5 @@ fun LifeGame(viewModel: SharedGameSettingsViewModel) {
         }
     }
 }
-
 
 
